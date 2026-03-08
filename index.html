@@ -795,37 +795,110 @@
         </main>
     </div>
 
-    <!-- ===== PM TOOLS MODAL (unified) ===== -->
+    <!-- ===== CONNECT WIZARD MODAL ===== -->
     <div id="pm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="modal-overlay absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePMModal()"></div>
+        <div class="modal-overlay absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closePMModal()"></div>
         <div
-            class="modal-box relative bg-[#161d2e] rounded-2xl shadow-2xl w-full max-w-md p-8 z-10 border border-[#1e2a40]">
-            <div class="flex items-center gap-3 mb-5">
-                <div id="pm-modal-icon" class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0">
-                </div>
+            class="modal-box relative bg-[#161d2e] rounded-2xl shadow-2xl w-full max-w-lg z-10 border border-[#1e2a40] overflow-hidden">
+            <!-- Tool header banner -->
+            <div id="pm-banner" class="h-24 flex items-center justify-center gap-3 relative">
+                <div id="pm-banner-icon" class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl"></div>
                 <div>
-                    <h2 id="pm-modal-title" class="font-bold text-lg text-white"></h2>
-                    <p id="pm-modal-subtitle" class="text-xs text-slate-400"></p>
+                    <h2 id="pm-banner-title" class="font-black text-xl text-white"></h2>
+                    <p id="pm-banner-desc" class="text-sm opacity-80 text-white"></p>
                 </div>
                 <button onclick="closePMModal()"
-                    class="ml-auto text-slate-500 hover:text-slate-200 p-1 rounded hover:bg-[#1e2a40]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    class="absolute top-4 right-4 text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                         stroke-linecap="round">
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                 </button>
             </div>
-            <div class="space-y-3" id="pm-modal-fields"></div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="savePMConfig()"
-                    class="flex-1 py-2.5 rounded-lg text-sm font-bold text-white shadow-sm transition bg-primary hover:bg-primary/90">Guardar
-                    y activar</button>
-                <button onclick="closePMModal()"
-                    class="px-4 py-2.5 text-sm rounded-lg border border-[#1e2a40] hover:bg-[#1e2a40] text-slate-300 transition">Cancelar</button>
+            <!-- Step indicators -->
+            <div class="flex border-b border-[#1e2a40]">
+                <button class="pm-step-tab flex-1 py-3 text-xs font-bold text-center transition" data-step="1"
+                    onclick="goWizardStep(1)">
+                    <span
+                        class="pm-step-num inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black mr-1.5">1</span>Abrir
+                </button>
+                <button class="pm-step-tab flex-1 py-3 text-xs font-bold text-center transition" data-step="2"
+                    onclick="goWizardStep(2)">
+                    <span
+                        class="pm-step-num inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black mr-1.5">2</span>Copiar
+                </button>
+                <button class="pm-step-tab flex-1 py-3 text-xs font-bold text-center transition" data-step="3"
+                    onclick="goWizardStep(3)">
+                    <span
+                        class="pm-step-num inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black mr-1.5">3</span>Conectar
+                </button>
             </div>
-            <p class="text-center mt-3"><a id="pm-modal-link" href="#" target="_blank"
-                    class="text-xs text-primary hover:underline"></a></p>
+            <!-- Step content -->
+            <div class="p-6">
+                <!-- STEP 1: Open the platform -->
+                <div id="pm-step-1" class="pm-step-pane">
+                    <div class="text-center mb-6">
+                        <div class="text-4xl mb-3">🚀</div>
+                        <h3 class="font-bold text-white text-base mb-1">Abre tu cuenta en <span
+                                id="s1-tool-name"></span></h3>
+                        <p class="text-slate-400 text-sm">Te llevaremos directo a la página donde puedes generar tu
+                            clave de acceso.</p>
+                    </div>
+                    <a id="pm-open-btn" href="#" target="_blank" onclick="goWizardStep(2)"
+                        class="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-white text-sm shadow-lg transition hover:opacity-90 mb-3"
+                        id="pm-open-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                        Ir a <span id="s1-btn-label"></span>
+                    </a>
+                    <button onclick="goWizardStep(2)"
+                        class="w-full py-2.5 text-sm text-slate-400 hover:text-slate-200 transition">
+                        Ya tengo mi clave → Continuar
+                    </button>
+                </div>
+                <!-- STEP 2: How to copy the token -->
+                <div id="pm-step-2" class="pm-step-pane hidden">
+                    <h3 class="font-bold text-white text-base mb-4">¿Dónde encuentro mi clave?</h3>
+                    <ol id="pm-instructions" class="space-y-3 mb-6"></ol>
+                    <button onclick="goWizardStep(3)"
+                        class="w-full py-3 rounded-xl bg-primary font-bold text-white text-sm hover:bg-primary/90 transition">
+                        Ya la copié → Continuar
+                    </button>
+                </div>
+                <!-- STEP 3: Paste & Connect -->
+                <div id="pm-step-3" class="pm-step-pane hidden">
+                    <h3 class="font-bold text-white text-base mb-1">Pega tu clave aquí</h3>
+                    <p class="text-slate-400 text-xs mb-4">Se guarda solo en tu navegador — nunca la enviamos a ningún
+                        servidor.</p>
+                    <div id="pm-extra-fields" class="space-y-3 mb-3"></div>
+                    <div class="relative mb-2">
+                        <input id="pm-token-input" type="password" placeholder="Pega tu clave aquí..."
+                            class="w-full px-4 py-3 pr-10 text-sm border border-[#1e2a40] rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 bg-[#101622] text-slate-100 placeholder-slate-600 font-mono" />
+                        <button
+                            onclick="document.getElementById('pm-token-input').type = document.getElementById('pm-token-input').type==='password'?'text':'password'"
+                            class="absolute right-3 top-3 text-slate-500 hover:text-slate-200">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="pm-token-error" class="text-xs text-red-400 hidden mb-2"></p>
+                    <button onclick="savePMConfig()"
+                        class="w-full py-3.5 rounded-xl font-bold text-white text-sm shadow-lg transition mt-1"
+                        id="pm-connect-btn">
+                        ✓ Conectar
+                    </button>
+                    <p class="text-center mt-3 text-xs text-slate-500">🔒 Tu clave se guarda solo en este navegador
+                        (localStorage)</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1624,46 +1697,47 @@ ${input}`;
         // ===================== PM INTEGRATIONS =====================
         const PM_CONFIG = {
             todoist: {
-                title: 'Todoist', color: '#DB4035',
-                subtitle: 'Personal Access Token de Todoist',
-                fields: [{ id: 'token', label: 'API Token', type: 'password', placeholder: 'tu_api_token_de_todoist' }],
-                linkText: 'Obtener token en Todoist → Settings → Integrations',
-                linkHref: 'https://todoist.com/app/settings/integrations/developer',
+                title: 'Todoist', color: '#DB4035', settingsUrl: 'https://todoist.com/app/settings/integrations/developer',
+                settingsBtnLabel: 'Todoist Settings',
+                icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M3 6.5A3.5 3.5 0 0 1 6.5 3h11A3.5 3.5 0 0 1 21 6.5v11a3.5 3.5 0 0 1-3.5 3.5h-11A3.5 3.5 0 0 1 3 17.5v-11zm9.78 2.03-4.5 4.5-1.78-1.78a.75.75 0 0 0-1.06 1.06l2.31 2.31a.75.75 0 0 0 1.06 0l5.03-5.03a.75.75 0 0 0-1.06-1.06z"/></svg>`,
+                desc: 'Gestión de tareas personal',
+                instructions: ['Haz clic en "Ir a Todoist Settings" arriba', 'Ve a la sección <strong>Developer</strong>', 'Copia el token bajo <strong>"API token"</strong>', 'Regresa aquí y pégalo en el paso 3'],
+                extraFields: [],
             },
             asana: {
-                title: 'Asana', color: '#F06A6A',
-                subtitle: 'Personal Access Token de Asana',
-                fields: [
-                    { id: 'token', label: 'Personal Access Token', type: 'password', placeholder: 'eyJ...' },
-                    { id: 'workspace', label: 'Workspace GID (opcional)', type: 'text', placeholder: '123456789' }
-                ],
-                linkText: 'Obtener PAT en Asana → My Profile → Apps → Personal Access Tokens',
-                linkHref: 'https://app.asana.com/0/my-apps',
+                title: 'Asana', color: '#F06A6A', settingsUrl: 'https://app.asana.com/0/my-apps',
+                settingsBtnLabel: 'Asana Apps',
+                icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="5.5" r="3.5"/><circle cx="5.5" cy="15.5" r="3.5"/><circle cx="18.5" cy="15.5" r="3.5"/></svg>`,
+                desc: 'Gestión de proyectos en equipo',
+                instructions: ['Haz clic en "Ir a Asana Apps" arriba', 'Haz clic en <strong>"+ Create new token"</strong>', 'Nómbralo "Syncro-Daily" y confirma', 'Copia el token generado y pégalo en el paso 3'],
+                extraFields: [],
             },
             monday: {
-                title: 'Monday.com', color: '#FF3D57',
-                subtitle: 'API Key de Monday.com (v2)',
-                fields: [{ id: 'token', label: 'API Key', type: 'password', placeholder: 'eyJhbGciOi...' }],
-                linkText: 'Obtener API Key en Monday → Profile → API',
-                linkHref: 'https://monday.com/settings/api-tokens',
+                title: 'Monday.com', color: '#FF3D57', settingsUrl: 'https://auth.monday.com/users/sign_in',
+                settingsBtnLabel: 'Monday.com',
+                icon: `<span style="color:white;font-weight:900;font-size:22px;line-height:1">m</span>`,
+                desc: 'Work OS para equipos',
+                instructions: ['Inicia sesión en Monday.com', 'Haz clic en tu <strong>foto de perfil</strong> (arriba derecha)', 'Ve a <strong>Administración → API</strong>', 'Copia tu <strong>API v2 Token</strong> y pégalo en el paso 3'],
+                extraFields: [],
             },
             clickup: {
-                title: 'ClickUp', color: '#7B68EE',
-                subtitle: 'Personal API Token de ClickUp',
-                fields: [{ id: 'token', label: 'Personal Token', type: 'password', placeholder: 'pk_...' }],
-                linkText: 'Obtener token en ClickUp → Profile → Apps → API Token',
-                linkHref: 'https://app.clickup.com/settings/apps',
+                title: 'ClickUp', color: '#7B68EE', settingsUrl: 'https://app.clickup.com/settings/apps',
+                settingsBtnLabel: 'ClickUp Apps',
+                icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L7.5 11.5L10 14.5L14.5 8L21 17"/></svg>`,
+                desc: 'Todo en uno para productividad',
+                instructions: ['Haz clic en "Ir a ClickUp Apps" arriba', 'Busca la sección <strong>"API Token"</strong>', 'Copia el token (empieza con <code class="bg-[#101622] px-1 rounded">pk_</code>)', 'Regresa aquí y pégalo en el paso 3'],
+                extraFields: [],
             },
             jira: {
-                title: 'Jira', color: '#0052CC',
-                subtitle: 'Jira Cloud — email + API Token',
-                fields: [
-                    { id: 'domain', label: 'Tu dominio Jira', type: 'text', placeholder: 'tuempresa.atlassian.net' },
-                    { id: 'email', label: 'Email', type: 'text', placeholder: 'tu@email.com' },
-                    { id: 'token', label: 'API Token', type: 'password', placeholder: 'ATATT3x...' }
+                title: 'Jira', color: '#0052CC', settingsUrl: 'https://id.atlassian.com/manage-profile/security/api-tokens',
+                settingsBtnLabel: 'Atlassian API Tokens',
+                icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M11.571 11.429L3 2.857A11.429 11.429 0 0 1 20.143 20L11.57 11.43z" fill="white" opacity=".5"/><path d="M12.429 12.571L21 21.143A11.429 11.429 0 0 1 3.857 4L12.43 12.57z" fill="white"/></svg>`,
+                desc: 'Issue tracking para equipos dev',
+                instructions: ['Haz clic en "Ir a Atlassian" arriba', 'Haz clic en <strong>"Create API token"</strong>', 'Nombra el token "Syncro-Daily" y copialo', 'Regresa aquí, escribe tu dominio y email, y pega el token'],
+                extraFields: [
+                    { id: 'domain', label: 'Tu dominio Jira (ej: empresa.atlassian.net)', placeholder: 'empresa.atlassian.net' },
+                    { id: 'email', label: 'Tu email de Atlassian', placeholder: 'tu@email.com' },
                 ],
-                linkText: 'Obtener API Token en id.atlassian.com',
-                linkHref: 'https://id.atlassian.com/manage-profile/security/api-tokens',
             },
         };
 
@@ -1672,54 +1746,99 @@ ${input}`;
         function openPMModal(tool) {
             _currentPMTool = tool;
             const cfg = PM_CONFIG[tool];
-            document.getElementById('pm-modal-icon').style.background = cfg.color;
-            document.getElementById('pm-modal-icon').innerHTML = `<span style="color:white;font-weight:900;font-size:14px">${cfg.title[0]}</span>`;
-            document.getElementById('pm-modal-title').textContent = `Conectar ${cfg.title}`;
-            document.getElementById('pm-modal-subtitle').textContent = cfg.subtitle;
-            document.getElementById('pm-modal-link').textContent = cfg.linkText;
-            document.getElementById('pm-modal-link').href = cfg.linkHref;
-            const fields = cfg.fields.map(f => {
+            // Build banner
+            document.getElementById('pm-banner').style.background = `linear-gradient(135deg, ${cfg.color}dd, ${cfg.color}88)`;
+            document.getElementById('pm-banner-icon').innerHTML = cfg.icon;
+            document.getElementById('pm-banner-icon').style.background = 'rgba(255,255,255,0.2)';
+            document.getElementById('pm-banner-title').textContent = cfg.title;
+            document.getElementById('pm-banner-desc').textContent = cfg.desc;
+            // Step 1 content
+            document.getElementById('s1-tool-name').textContent = cfg.title;
+            document.getElementById('s1-btn-label').textContent = cfg.settingsBtnLabel;
+            const openBtn = document.getElementById('pm-open-btn');
+            openBtn.href = cfg.settingsUrl;
+            openBtn.style.background = `linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)`;
+            // Step 2 instructions
+            document.getElementById('pm-instructions').innerHTML = cfg.instructions.map((s, i) =>
+                `<li class="flex gap-3 items-start"><span class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black text-white mt-0.5" style="background:${cfg.color}">${i + 1}</span><span class="text-slate-300 text-sm">${s}</span></li>`
+            ).join('');
+            // Step 3 connect button
+            document.getElementById('pm-connect-btn').style.background = `linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)`;
+            // Extra fields (e.g. Jira domain + email)
+            const extraEl = document.getElementById('pm-extra-fields');
+            extraEl.innerHTML = cfg.extraFields.map(f => {
                 const saved = localStorage.getItem(`pm_${tool}_${f.id}`) || '';
-                return `<div><label class="block text-xs font-semibold text-slate-300 mb-1.5">${f.label}</label>
-                  <input id="pm_${f.id}" type="${f.type}" placeholder="${f.placeholder}" value="${saved}"
-                    class="w-full px-3 py-2.5 text-sm border border-[#1e2a40] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 bg-[#101622] text-slate-100 placeholder-slate-600" /></div>`;
+                return `<div><label class="block text-xs font-semibold text-slate-300 mb-1">${f.label}</label>
+                  <input id="pm_extra_${f.id}" type="text" placeholder="${f.placeholder}" value="${saved}"
+                    class="w-full px-3 py-2.5 text-sm border border-[#1e2a40] rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 bg-[#101622] text-slate-100 placeholder-slate-600" /></div>`;
             }).join('');
-            document.getElementById('pm-modal-fields').innerHTML = fields;
+            // Restore saved token
+            const saved = localStorage.getItem(`pm_${tool}_token`) || '';
+            document.getElementById('pm-token-input').value = saved;
+            document.getElementById('pm-token-error').classList.add('hidden');
+            goWizardStep(1);
             document.getElementById('pm-modal').classList.remove('hidden');
         }
 
         function closePMModal() { document.getElementById('pm-modal').classList.add('hidden'); _currentPMTool = null; }
 
+        function goWizardStep(n) {
+            [1, 2, 3].forEach(i => {
+                document.getElementById(`pm-step-${i}`).classList.toggle('hidden', i !== n);
+            });
+            document.querySelectorAll('.pm-step-tab').forEach(btn => {
+                const s = parseInt(btn.dataset.step);
+                const active = s === n;
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('text-slate-500', !active);
+                const num = btn.querySelector('.pm-step-num');
+                if (num) {
+                    num.style.background = active ? '#1152d4' : 'transparent';
+                    num.style.color = active ? 'white' : '#64748b';
+                    num.style.border = active ? 'none' : '1.5px solid #334155';
+                }
+            });
+        }
+
         function savePMConfig() {
             const tool = _currentPMTool;
             if (!tool) return;
             const cfg = PM_CONFIG[tool];
-            let allFilled = true;
-            cfg.fields.forEach(f => {
-                const val = document.getElementById(`pm_${f.id}`)?.value.trim();
-                if (!val && f.id !== 'workspace') allFilled = false;
+            const token = document.getElementById('pm-token-input').value.trim();
+            const errEl = document.getElementById('pm-token-error');
+            if (!token) {
+                errEl.textContent = '⚠️ Por favor pega tu clave de acceso.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            errEl.classList.add('hidden');
+            localStorage.setItem(`pm_${tool}_token`, token);
+            // Save extra fields
+            cfg.extraFields.forEach(f => {
+                const val = document.getElementById(`pm_extra_${f.id}`)?.value.trim();
                 if (val) localStorage.setItem(`pm_${tool}_${f.id}`, val);
             });
-            if (!allFilled) { showToast('⚠️', 'Completa todos los campos requeridos'); return; }
             closePMModal();
-            // Show import button + update status
+            markToolConnected(tool, cfg.title);
+            showToast('✅', `${cfg.title} conectado — usa "↓ Importar" para cargar tus tareas`);
+        }
+
+        function markToolConnected(tool, title) {
             const importBtn = document.getElementById(`${tool}-import-btn`);
             const statusEl = document.getElementById(`${tool}-status`);
             if (importBtn) importBtn.classList.remove('hidden');
-            if (statusEl) statusEl.textContent = `✓ Configurado — listo para importar`;
-            showToast('✅', `${cfg.title} configurado`);
+            if (statusEl) {
+                statusEl.innerHTML = `<span class="inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span><span class="text-emerald-400 font-semibold">Conectado</span></span>`;
+            }
+            // Update configure button to say "Reconectar"
+            const cfgBtns = document.querySelectorAll(`[onclick="openPMModal('${tool}')"]`);
+            cfgBtns.forEach(b => { b.textContent = 'Reconectar'; });
         }
 
         // Restore PM buttons on load
         window.addEventListener('DOMContentLoaded', () => {
             Object.keys(PM_CONFIG).forEach(tool => {
-                const token = localStorage.getItem(`pm_${tool}_token`);
-                if (token) {
-                    const importBtn = document.getElementById(`${tool}-import-btn`);
-                    const statusEl = document.getElementById(`${tool}-status`);
-                    if (importBtn) importBtn.classList.remove('hidden');
-                    if (statusEl) statusEl.textContent = '✓ Configurado — listo para importar';
-                }
+                if (localStorage.getItem(`pm_${tool}_token`)) markToolConnected(tool, PM_CONFIG[tool].title);
             });
         });
 
