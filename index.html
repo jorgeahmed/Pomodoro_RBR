@@ -1287,9 +1287,11 @@ ${input}`;
         let _supabase = null;
 
         function initSupabase() {
-            const url = localStorage.getItem('sb_url');
-            const key = localStorage.getItem('sb_key');
-            if (!url || !key) return;
+            // Default credentials (anon key — safe for client-side use with RLS)
+            const DEFAULT_URL = 'https://rdmywbcfcubiutcqnwjl.supabase.co';
+            const DEFAULT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkbXl3YmNmY3ViaXV0Y3Fud2psIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MjQyMjIsImV4cCI6MjA4ODUwMDIyMn0.-pzSkcZx7suz_7oX8odLLHeCP4W7niVyuAhlEPkmYTQ';
+            const url = localStorage.getItem('sb_url') || DEFAULT_URL;
+            const key = localStorage.getItem('sb_key') || DEFAULT_KEY;
             try {
                 _supabase = supabase.createClient(url, key);
                 _supabase.auth.onAuthStateChange((_event, session) => {
@@ -1302,7 +1304,7 @@ ${input}`;
                 if (card) card.textContent = 'Supabase conectado — OAuth y DB activos';
                 const btn = document.getElementById('supabase-connect-btn');
                 if (btn) { btn.textContent = '✓ Conectado'; btn.classList.add('opacity-80'); }
-            } catch(e) {
+            } catch (e) {
                 console.error('Supabase init error:', e);
             }
         }
@@ -1399,7 +1401,7 @@ ${input}`;
                     showToast('🚀', `¡Bienvenido${name ? ', ' + name.split(' ')[0] : ''}!`);
                     setTimeout(closeSubscribeModal, 2500);
                 }
-            } catch(err) {
+            } catch (err) {
                 showToast('❌', 'Error: ' + (err.message || 'Intenta de nuevo'));
             }
         }
