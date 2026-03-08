@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1152d4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-10 py-4 bg-background-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-3xl">sync_alt</span>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Syncro-Daily</h2>
+</div>
+<nav class="flex items-center gap-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary pb-1" href="#">Inbox</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Projects</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors" href="#">Calendar</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<label class="flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-200/50 dark:bg-slate-800/50 border border-transparent focus-within:border-primary transition-all">
+<div class="text-slate-500 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-500" placeholder="Search tasks..."/>
+</div>
+</label>
+<button class="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors">
+<span>Sync Now</span>
+</button>
+<div class="bg-slate-300 dark:bg-slate-700 aspect-square rounded-full size-10 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-800">
+<img class="w-full h-full object-cover" data-alt="User profile avatar with minimalist icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKk0-V54Jg8N05xV5IA7-caCJ6UT-lVlxyWpsmDWLpZ1X2-J1vJQwNhxi6e0qOG5nSCjNbnM5cNYzHyFIF50ncqgSlYvzbyDeEcZoUjgeq8A2mOPvMyUfxl2f4Wk81K-jZBGPMeuGeTWrXcWHVNMhd3VZkTtzVTpMwdmqS-TnaVXEWj-wkFfJ8hkjyoFXYDk5TPs1cDbKYlk2nkPuzj2znlGv1DX66SAHf71BSVC4clJahvYHf5846oZYTj8DuTGV921yRoxRZfQ"/>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
+<div class="flex flex-wrap justify-between items-end gap-4 mb-8">
+<div class="flex flex-col gap-1">
+<h1 class="text-slate-900 dark:text-white text-4xl font-black tracking-tight">Universal Task Aggregator</h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg">Centralizing your workflow from Notion, GitHub, and Google Calendar.</p>
+</div>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg font-bold text-sm hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors border border-slate-300 dark:border-slate-700">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                        Re-sincronizar
+                    </button>
+</div>
+<div class="mb-12 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<div class="p-6">
+<div class="flex gap-4">
+<div class="hidden sm:block">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">edit_note</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-4">
+<textarea class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg p-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none min-h-[120px]" placeholder="Pega el caos aquí (Paste your chaos here)..."></textarea>
+<div class="flex items-center justify-between">
+<div class="flex gap-2">
+<button class="p-2 text-slate-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">attach_file</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">link</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all">
+                                        Capture Task
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h2 class="text-slate-900 dark:text-white text-2xl font-bold tracking-tight">Eisenhower Matrix - Task Classification</h2>
+<div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
+<button class="px-4 py-1.5 text-xs font-bold bg-white dark:bg-slate-700 rounded-md shadow-sm">Table View</button>
+<button class="px-4 py-1.5 text-xs font-bold text-slate-500">Grid View</button>
+</div>
+</div>
+<div class="border-b border-slate-200 dark:border-slate-800 flex gap-8">
+<button class="pb-3 border-b-2 border-primary text-primary font-bold text-sm">All Tasks (12)</button>
+<button class="pb-3 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-700 dark:hover:text-slate-300">Important &amp; Urgent</button>
+<button class="pb-3 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-700 dark:hover:text-slate-300">Important &amp; Not Urgent</button>
+<button class="pb-3 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-700 dark:hover:text-slate-300">Urgent &amp; Not Important</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-separate border-spacing-0">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50">
+<th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 dark:border-slate-800 rounded-tl-lg">Task Description</th>
+<th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 dark:border-slate-800">Source</th>
+<th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 dark:border-slate-800">Quadrant</th>
+<th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 dark:border-slate-800">Priority</th>
+<th class="px-4 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-y border-slate-200 dark:border-slate-800 rounded-tr-lg">Est. Time</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900/50">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-4 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">check_box_outline_blank</span>
+<span class="font-medium">Finalize Q3 Security Audit</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]">description</span> Notion
+                                        </span>
+</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 text-[10px] font-black uppercase rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Do First</span>
+</td>
+<td class="px-4 py-4 text-sm font-medium">High</td>
+<td class="px-4 py-4 text-sm text-slate-500">2h 30m</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-4 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">check_box_outline_blank</span>
+<span class="font-medium">Refactor Auth Middleware</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]">code</span> GitHub
+                                        </span>
+</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 text-[10px] font-black uppercase rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Schedule</span>
+</td>
+<td class="px-4 py-4 text-sm font-medium">Medium</td>
+<td class="px-4 py-4 text-sm text-slate-500">4h</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-4 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">check_box_outline_blank</span>
+<span class="font-medium">Sync with Design Team</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span> Calendar
+                                        </span>
+</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 text-[10px] font-black uppercase rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Delegate</span>
+</td>
+<td class="px-4 py-4 text-sm font-medium">Low</td>
+<td class="px-4 py-4 text-sm text-slate-500">45m</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-4 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">check_box_outline_blank</span>
+<span class="font-medium">Update Documentation Header</span>
+</div>
+</td>
+<td class="px-4 py-4 text-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]">description</span> Notion
+                                        </span>
+</td>
+<td class="px-4 py-4">
+<span class="px-2 py-1 text-[10px] font-black uppercase rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-500">Eliminate</span>
+</td>
+<td class="px-4 py-4 text-sm font-medium text-slate-400">None</td>
+<td class="px-4 py-4 text-sm text-slate-500">15m</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex justify-center py-4">
+<button class="text-primary text-sm font-bold hover:underline flex items-center gap-1">
+                            Show more tasks
+                            <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+<footer class="border-t border-slate-200 dark:border-slate-800 py-6 px-10 flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs">
+<p>© 2024 Syncro-Daily. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+<a class="hover:text-primary" href="#">Help Center</a>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

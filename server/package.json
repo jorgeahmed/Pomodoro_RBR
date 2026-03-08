@@ -1,0 +1,17 @@
+{
+  "name": "syncro-daily-api",
+  "version": "1.0.0",
+  "description": "Syncro-Daily backend — OAuth proxy + daily email report",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@supabase/supabase-js": "^2.49.1",
+    "hono": "^4.7.4",
+    "resend": "^4.1.2"
+  }
+}
