@@ -1695,49 +1695,38 @@ ${input}`;
         }
 
         // ===================== PM INTEGRATIONS =====================
+        const SERVER_URL = 'https://pomodororbr-production.up.railway.app';
+
         const PM_CONFIG = {
             todoist: {
-                title: 'Todoist', color: '#DB4035', settingsUrl: 'https://todoist.com/app/settings/integrations/developer',
-                settingsBtnLabel: 'Todoist Settings',
+                title: 'Todoist', color: '#DB4035',
                 icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M3 6.5A3.5 3.5 0 0 1 6.5 3h11A3.5 3.5 0 0 1 21 6.5v11a3.5 3.5 0 0 1-3.5 3.5h-11A3.5 3.5 0 0 1 3 17.5v-11zm9.78 2.03-4.5 4.5-1.78-1.78a.75.75 0 0 0-1.06 1.06l2.31 2.31a.75.75 0 0 0 1.06 0l5.03-5.03a.75.75 0 0 0-1.06-1.06z"/></svg>`,
                 desc: 'Gestión de tareas personal',
-                instructions: ['Haz clic en "Ir a Todoist Settings" arriba', 'Ve a la sección <strong>Developer</strong>', 'Copia el token bajo <strong>"API token"</strong>', 'Regresa aquí y pégalo en el paso 3'],
-                extraFields: [],
             },
             asana: {
-                title: 'Asana', color: '#F06A6A', settingsUrl: 'https://app.asana.com/0/my-apps',
-                settingsBtnLabel: 'Asana Apps',
+                title: 'Asana', color: '#F06A6A',
                 icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="5.5" r="3.5"/><circle cx="5.5" cy="15.5" r="3.5"/><circle cx="18.5" cy="15.5" r="3.5"/></svg>`,
                 desc: 'Gestión de proyectos en equipo',
-                instructions: ['Haz clic en "Ir a Asana Apps" arriba', 'Haz clic en <strong>"+ Create new token"</strong>', 'Nómbralo "Syncro-Daily" y confirma', 'Copia el token generado y pégalo en el paso 3'],
-                extraFields: [],
             },
             monday: {
-                title: 'Monday.com', color: '#FF3D57', settingsUrl: 'https://auth.monday.com/users/sign_in',
-                settingsBtnLabel: 'Monday.com',
+                title: 'Monday.com', color: '#FF3D57',
                 icon: `<span style="color:white;font-weight:900;font-size:22px;line-height:1">m</span>`,
                 desc: 'Work OS para equipos',
-                instructions: ['Inicia sesión en Monday.com', 'Haz clic en tu <strong>foto de perfil</strong> (arriba derecha)', 'Ve a <strong>Administración → API</strong>', 'Copia tu <strong>API v2 Token</strong> y pégalo en el paso 3'],
-                extraFields: [],
             },
             clickup: {
-                title: 'ClickUp', color: '#7B68EE', settingsUrl: 'https://app.clickup.com/settings/apps',
-                settingsBtnLabel: 'ClickUp Apps',
+                title: 'ClickUp', color: '#7B68EE',
                 icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L7.5 11.5L10 14.5L14.5 8L21 17"/></svg>`,
                 desc: 'Todo en uno para productividad',
-                instructions: ['Haz clic en "Ir a ClickUp Apps" arriba', 'Busca la sección <strong>"API Token"</strong>', 'Copia el token (empieza con <code class="bg-[#101622] px-1 rounded">pk_</code>)', 'Regresa aquí y pégalo en el paso 3'],
-                extraFields: [],
             },
             jira: {
-                title: 'Jira', color: '#0052CC', settingsUrl: 'https://id.atlassian.com/manage-profile/security/api-tokens',
-                settingsBtnLabel: 'Atlassian API Tokens',
+                title: 'Jira', color: '#0052CC',
                 icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M11.571 11.429L3 2.857A11.429 11.429 0 0 1 20.143 20L11.57 11.43z" fill="white" opacity=".5"/><path d="M12.429 12.571L21 21.143A11.429 11.429 0 0 1 3.857 4L12.43 12.57z" fill="white"/></svg>`,
                 desc: 'Issue tracking para equipos dev',
-                instructions: ['Haz clic en "Ir a Atlassian" arriba', 'Haz clic en <strong>"Create API token"</strong>', 'Nombra el token "Syncro-Daily" y copialo', 'Regresa aquí, escribe tu dominio y email, y pega el token'],
-                extraFields: [
-                    { id: 'domain', label: 'Tu dominio Jira (ej: empresa.atlassian.net)', placeholder: 'empresa.atlassian.net' },
-                    { id: 'email', label: 'Tu email de Atlassian', placeholder: 'tu@email.com' },
-                ],
+                extraHtml: `
+                  <div class="mt-4"><label class="block text-xs font-semibold text-slate-300 mb-1">Tu dominio Jira (ej: empresa.atlassian.net)</label>
+                  <input id="pm_jira_domain" type="text" placeholder="empresa.atlassian.net"
+                    class="w-full px-3 py-2.5 text-sm border border-[#1e2a40] rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 bg-[#101622] text-slate-100 placeholder-slate-600" /></div>
+                `
             },
         };
 
@@ -1746,215 +1735,140 @@ ${input}`;
         function openPMModal(tool) {
             _currentPMTool = tool;
             const cfg = PM_CONFIG[tool];
-            // Build banner
-            document.getElementById('pm-banner').style.background = `linear-gradient(135deg, ${cfg.color}dd, ${cfg.color}88)`;
-            document.getElementById('pm-banner-icon').innerHTML = cfg.icon;
-            document.getElementById('pm-banner-icon').style.background = 'rgba(255,255,255,0.2)';
-            document.getElementById('pm-banner-title').textContent = cfg.title;
-            document.getElementById('pm-banner-desc').textContent = cfg.desc;
-            // Step 1 content
-            document.getElementById('s1-tool-name').textContent = cfg.title;
-            document.getElementById('s1-btn-label').textContent = cfg.settingsBtnLabel;
-            const openBtn = document.getElementById('pm-open-btn');
-            openBtn.href = cfg.settingsUrl;
-            openBtn.style.background = `linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)`;
-            // Step 2 instructions
-            document.getElementById('pm-instructions').innerHTML = cfg.instructions.map((s, i) =>
-                `<li class="flex gap-3 items-start"><span class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black text-white mt-0.5" style="background:${cfg.color}">${i + 1}</span><span class="text-slate-300 text-sm">${s}</span></li>`
-            ).join('');
-            // Step 3 connect button
-            document.getElementById('pm-connect-btn').style.background = `linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)`;
-            // Extra fields (e.g. Jira domain + email)
-            const extraEl = document.getElementById('pm-extra-fields');
-            extraEl.innerHTML = cfg.extraFields.map(f => {
-                const saved = localStorage.getItem(`pm_${tool}_${f.id}`) || '';
-                return `<div><label class="block text-xs font-semibold text-slate-300 mb-1">${f.label}</label>
-                  <input id="pm_extra_${f.id}" type="text" placeholder="${f.placeholder}" value="${saved}"
-                    class="w-full px-3 py-2.5 text-sm border border-[#1e2a40] rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 bg-[#101622] text-slate-100 placeholder-slate-600" /></div>`;
-            }).join('');
-            // Restore saved token
-            const saved = localStorage.getItem(`pm_${tool}_token`) || '';
-            document.getElementById('pm-token-input').value = saved;
-            document.getElementById('pm-token-error').classList.add('hidden');
-            goWizardStep(1);
-            document.getElementById('pm-modal').classList.remove('hidden');
+
+            // Si no hay usuario logueado en Supabase, forzar login
+            if (!_supabase) { openSupabaseModal(); return; }
+            _supabase.auth.getSession().then(({ data }) => {
+                const userId = data?.session?.user?.id;
+                if (!userId) {
+                    showToast('⚠️', 'Inicia sesión primero para conectar herramientas');
+                    openAuthModal();
+                    return;
+                }
+
+                document.getElementById('pm-banner').style.background = `linear-gradient(135deg, ${cfg.color}dd, ${cfg.color}88)`;
+                document.getElementById('pm-banner-icon').innerHTML = cfg.icon;
+                document.getElementById('pm-banner-icon').style.background = 'rgba(255,255,255,0.2)';
+                document.getElementById('pm-banner-title').textContent = cfg.title;
+                document.getElementById('pm-banner-desc').textContent = cfg.desc;
+
+                // Hide old wizard content, replace with simple OAuth connect button
+                document.getElementById('pm-step-1').innerHTML = `
+                  <div class="text-center py-6">
+                    <p class="text-slate-300 text-sm mb-6">Serás redirigido a <strong>${cfg.title}</strong> para autorizar el acceso a tus tareas. No almacenamos tus contraseñas.</p>
+                    ${cfg.extraHtml || ''}
+                    <button onclick="startOAuthFlow('${tool}', '${userId}')" class="w-full mt-6 py-3 rounded-xl text-white font-bold text-sm shadow-md transition" style="background: linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)">
+                      Conectar ${cfg.title}
+                    </button>
+                  </div>
+                `;
+                goWizardStep(1);
+
+                // Hide steps 2 and 3 entirely for the new flow
+                document.getElementById('pm-step-2').classList.add('hidden');
+                document.getElementById('pm-step-3').classList.add('hidden');
+                document.querySelector('.pm-tabs').classList.add('hidden');
+
+                document.getElementById('pm-modal').classList.remove('hidden');
+            });
+        }
+
+        function startOAuthFlow(tool, userId) {
+            showToast('🔄', 'Redirigiendo a ' + tool + '...');
+
+            let extraQuery = '';
+            if (tool === 'jira') {
+                const domain = document.getElementById('pm_jira_domain')?.value?.trim();
+                if (!domain) { showToast('⚠️', 'Ingresa tu dominio de Jira'); return; }
+                extraQuery = `&domain=${encodeURIComponent(domain)}`;
+            }
+
+            // Redirigir al backend de Railway
+            const authUrl = `${SERVER_URL}/api/oauth/${tool}/start?user_id=${userId}${extraQuery}`;
+            window.location.href = authUrl;
         }
 
         function closePMModal() { document.getElementById('pm-modal').classList.add('hidden'); _currentPMTool = null; }
 
         function goWizardStep(n) {
-            [1, 2, 3].forEach(i => {
-                document.getElementById(`pm-step-${i}`).classList.toggle('hidden', i !== n);
-            });
-            document.querySelectorAll('.pm-step-tab').forEach(btn => {
-                const s = parseInt(btn.dataset.step);
-                const active = s === n;
-                btn.classList.toggle('text-white', active);
-                btn.classList.toggle('text-slate-500', !active);
-                const num = btn.querySelector('.pm-step-num');
-                if (num) {
-                    num.style.background = active ? '#1152d4' : 'transparent';
-                    num.style.color = active ? 'white' : '#64748b';
-                    num.style.border = active ? 'none' : '1.5px solid #334155';
-                }
-            });
+            // Simplified for backward compatibility with existing HTML structure
+            document.getElementById('pm-step-1').classList.remove('hidden');
         }
 
-        function savePMConfig() {
-            const tool = _currentPMTool;
-            if (!tool) return;
-            const cfg = PM_CONFIG[tool];
-            const token = document.getElementById('pm-token-input').value.trim();
-            const errEl = document.getElementById('pm-token-error');
-            if (!token) {
-                errEl.textContent = '⚠️ Por favor pega tu clave de acceso.';
-                errEl.classList.remove('hidden');
-                return;
-            }
-            errEl.classList.add('hidden');
-            localStorage.setItem(`pm_${tool}_token`, token);
-            // Save extra fields
-            cfg.extraFields.forEach(f => {
-                const val = document.getElementById(`pm_extra_${f.id}`)?.value.trim();
-                if (val) localStorage.setItem(`pm_${tool}_${f.id}`, val);
-            });
-            closePMModal();
-            markToolConnected(tool, cfg.title);
-            showToast('✅', `${cfg.title} conectado — usa "↓ Importar" para cargar tus tareas`);
-        }
-
-        function markToolConnected(tool, title) {
-            const importBtn = document.getElementById(`${tool}-import-btn`);
-            const statusEl = document.getElementById(`${tool}-status`);
-            if (importBtn) importBtn.classList.remove('hidden');
-            if (statusEl) {
-                statusEl.innerHTML = `<span class="inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span><span class="text-emerald-400 font-semibold">Conectado</span></span>`;
-            }
-            // Update configure button to say "Reconectar"
-            const cfgBtns = document.querySelectorAll(`[onclick="openPMModal('${tool}')"]`);
-            cfgBtns.forEach(b => { b.textContent = 'Reconectar'; });
-        }
-
-        // Restore PM buttons on load
+        // Restore PM buttons on load and handle OAuth callback
         window.addEventListener('DOMContentLoaded', () => {
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const connectedTool = hashParams.get('connected');
+            if (connectedTool) {
+                // Record the connection locally and update UI
+                localStorage.setItem(`pm_${connectedTool}_connected`, 'true');
+                markToolConnected(connectedTool, PM_CONFIG[connectedTool]?.title || connectedTool);
+                showToast('✅', `¡Conexión exitosa con ${PM_CONFIG[connectedTool]?.title || connectedTool}!`);
+                // Clean URL
+                window.history.replaceState(null, null, window.location.pathname + window.location.search);
+            }
+
+            // Restore state for previously connected tools
             Object.keys(PM_CONFIG).forEach(tool => {
-                if (localStorage.getItem(`pm_${tool}_token`)) markToolConnected(tool, PM_CONFIG[tool].title);
+                if (localStorage.getItem(`pm_${tool}_connected`)) {
+                    markToolConnected(tool, PM_CONFIG[tool].title);
+                }
             });
         });
 
-        // ===== TODOIST IMPORT =====
-        async function importTodoist() {
-            const token = localStorage.getItem('pm_todoist_token');
-            if (!token) { openPMModal('todoist'); return; }
-            showToast('⏳', 'Importando desde Todoist...');
+        // ===================== UNIVERSAL BACKEND IMPORT =====================
+        async function importFromBackend(tool) {
+            if (!_supabase) { showToast('⚠️', 'Supabase no configurado'); return; }
+            const { data } = await _supabase.auth.getSession();
+            const userId = data?.session?.user?.id;
+
+            if (!userId) {
+                showToast('⚠️', 'Inicia sesión para importar tareas');
+                return;
+            }
+
+            showToast('⏳', `Obteniendo tareas de ${PM_CONFIG[tool].title}...`);
             try {
-                const res = await fetch('https://api.todoist.com/rest/v2/tasks', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await fetch(`${SERVER_URL}/api/tasks/${tool}?user_id=${userId}`);
+                if (res.status === 404) {
+                    showToast('⚠️', `No estás conectado a ${PM_CONFIG[tool].title}`);
+                    localStorage.removeItem(`pm_${tool}_connected`);
+                    return;
+                }
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || `HTTP ${res.status}`);
+                }
+
+                const { tasks } = await res.json();
+
+                if (!tasks || tasks.length === 0) {
+                    showToast('ℹ️', `No se encontraron tareas pendientes en ${PM_CONFIG[tool].title}`);
+                    return;
+                }
+
+                // Format tasks for the input textarea
+                const lines = tasks.map(t => {
+                    let text = `- ${t.text}`;
+                    if (t.due) text += ` (due: ${t.due})`;
+                    if (t.urgent) text += ' (URGENTE)';
+                    return text;
                 });
-                if (!res.ok) throw new Error(`Error ${res.status}`);
-                const items = await res.json();
-                const lines = items.slice(0, 30).map(t => `- ${t.content}${t.due ? ` (due: ${t.due.string || t.due.date})` : ''}${t.priority > 1 ? ' (URGENTE)' : ''}`);
-                appendToInput(lines, 'Todoist');
-                showToast('✅', `${lines.length} tareas importadas de Todoist`);
+
+                appendToInput(lines, PM_CONFIG[tool].title);
+                showToast('✅', `${tasks.length} tareas importadas de ${PM_CONFIG[tool].title}`);
             } catch (e) {
-                showToast('❌', 'Error Todoist: ' + e.message + ' — verifica tu token');
+                console.error(`Error importing from ${tool}:`, e);
+                showToast('❌', `Error: ${e.message}`);
             }
         }
 
-        // ===== ASANA IMPORT =====
-        async function importAsana() {
-            const token = localStorage.getItem('pm_asana_token');
-            const workspace = localStorage.getItem('pm_asana_workspace') || '';
-            if (!token) { openPMModal('asana'); return; }
-            showToast('⏳', 'Importando desde Asana...');
-            try {
-                const wsParam = workspace ? `&workspace=${workspace}` : '';
-                const res = await fetch(`https://app.asana.com/api/1.0/tasks?assignee=me&completed_since=now${wsParam}&limit=30&opt_fields=name,due_on,priority`, {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-                });
-                if (!res.ok) throw new Error(`Error ${res.status}`);
-                const { data } = await res.json();
-                const lines = data.map(t => `- ${t.name}${t.due_on ? ` (due: ${t.due_on})` : ''}`);
-                appendToInput(lines, 'Asana');
-                showToast('✅', `${lines.length} tareas importadas de Asana`);
-            } catch (e) {
-                showToast('❌', 'Error Asana: ' + e.message);
-            }
-        }
-
-        // ===== MONDAY IMPORT =====
-        async function importMonday() {
-            const token = localStorage.getItem('pm_monday_token');
-            if (!token) { openPMModal('monday'); return; }
-            showToast('⏳', 'Importando desde Monday...');
-            try {
-                const query = `{ me { teams { boards(limit:3) { items_page(limit:20) { items { name column_values { text } } } } } } }`;
-                const res = await fetch('https://api.monday.com/v2', {
-                    method: 'POST',
-                    headers: { 'Authorization': token, 'Content-Type': 'application/json', 'API-Version': '2024-01' },
-                    body: JSON.stringify({ query })
-                });
-                if (!res.ok) throw new Error(`Error ${res.status}`);
-                const json = await res.json();
-                const items = json?.data?.me?.teams?.[0]?.boards?.flatMap(b => b.items_page?.items || []) || [];
-                const lines = items.slice(0, 25).map(i => `- ${i.name}`);
-                if (!lines.length) { showToast('ℹ️', 'No se encontraron items en Monday'); return; }
-                appendToInput(lines, 'Monday.com');
-                showToast('✅', `${lines.length} items importados de Monday`);
-            } catch (e) {
-                showToast('❌', 'Error Monday: ' + e.message);
-            }
-        }
-
-        // ===== CLICKUP IMPORT =====
-        async function importClickUp() {
-            const token = localStorage.getItem('pm_clickup_token');
-            if (!token) { openPMModal('clickup'); return; }
-            showToast('⏳', 'Importando desde ClickUp...');
-            try {
-                const teamsRes = await fetch('https://api.clickup.com/api/v2/team', {
-                    headers: { 'Authorization': token }
-                });
-                if (!teamsRes.ok) throw new Error(`Error ${teamsRes.status} — verifica tu token`);
-                const { teams } = await teamsRes.json();
-                if (!teams?.length) { showToast('ℹ️', 'No se encontraron equipos en ClickUp'); return; }
-                const teamId = teams[0].id;
-                const tasksRes = await fetch(`https://api.clickup.com/api/v2/team/${teamId}/task?assignees[]=me&include_closed=false&page=0`, {
-                    headers: { 'Authorization': token }
-                });
-                const { tasks: cuTasks } = await tasksRes.json();
-                const lines = (cuTasks || []).slice(0, 25).map(t => `- ${t.name}${t.due_date ? ` (due: ${new Date(+t.due_date).toLocaleDateString()})` : ''}${t.priority?.priority === 'urgent' ? ' (URGENTE)' : ''}`);
-                if (!lines.length) { showToast('ℹ️', 'No tienes tareas asignadas en ClickUp'); return; }
-                appendToInput(lines, 'ClickUp');
-                showToast('✅', `${lines.length} tareas importadas de ClickUp`);
-            } catch (e) {
-                showToast('❌', 'Error ClickUp: ' + e.message);
-            }
-        }
-
-        // ===== JIRA IMPORT =====
-        async function importJira() {
-            const domain = localStorage.getItem('pm_jira_domain');
-            const email = localStorage.getItem('pm_jira_email');
-            const token = localStorage.getItem('pm_jira_token');
-            if (!domain || !email || !token) { openPMModal('jira'); return; }
-            showToast('⏳', 'Importando desde Jira...');
-            try {
-                const creds = btoa(`${email}:${token}`);
-                const jql = encodeURIComponent('assignee = currentUser() AND statusCategory != Done ORDER BY priority DESC');
-                const res = await fetch(`https://${domain}/rest/api/3/search?jql=${jql}&maxResults=25&fields=summary,priority,duedate,status`, {
-                    headers: { 'Authorization': `Basic ${creds}`, 'Accept': 'application/json' }
-                });
-                if (!res.ok) throw new Error(`Error ${res.status} — verifica dominio/email/token`);
-                const { issues } = await res.json();
-                const lines = issues.map(i => `- [${i.key}] ${i.fields.summary}${i.fields.priority?.name === 'Highest' ? ' (URGENTE)' : ''}${i.fields.duedate ? ` (due: ${i.fields.duedate})` : ''}`);
-                if (!lines.length) { showToast('ℹ️', 'No tienes issues asignados en Jira'); return; }
-                appendToInput(lines, 'Jira');
-                showToast('✅', `${lines.length} issues importados de Jira`);
-            } catch (e) {
-                showToast('❌', 'Error Jira: ' + e.message);
-            }
-        }
+        // Bridge legacy individual import button clicks to universal function
+        function importTodoist() { importFromBackend('todoist'); }
+        function importAsana() { importFromBackend('asana'); }
+        function importMonday() { importFromBackend('monday'); }
+        function importClickUp() { importFromBackend('clickup'); }
+        function importJira() { importFromBackend('jira'); }
 
         // Shared helper: append tasks to textarea
         function appendToInput(lines, source) {
