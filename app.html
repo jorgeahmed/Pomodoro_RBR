@@ -1808,6 +1808,27 @@ ${input}`;
             document.getElementById('pm-step-1').classList.remove('hidden');
         }
 
+        // ─── Mark a PM tool as connected in the UI ───────────────────────────
+        function markToolConnected(tool, label) {
+            const statusEl = document.getElementById(`${tool}-status`);
+            if (statusEl) {
+                statusEl.textContent = `✅ Conectado`;
+                statusEl.className = 'text-xs text-green-400 font-semibold';
+            }
+
+            // Hide "Configurar" button, show "↓ Importar" button
+            const cfgBtn = document.getElementById(`${tool}-cfg-btn`);
+            if (cfgBtn) {
+                cfgBtn.textContent = '✓ Conectado';
+                cfgBtn.classList.remove('bg-[#161d2e]', 'border-[#1e2a40]', 'text-slate-200');
+                cfgBtn.classList.add('bg-green-900/30', 'border-green-700/40', 'text-green-300');
+                cfgBtn.setAttribute('onclick', `openPMModal('${tool}')`);
+            }
+
+            const importBtn = document.getElementById(`${tool}-import-btn`);
+            if (importBtn) importBtn.classList.remove('hidden');
+        }
+
         // Restore PM buttons on load and handle OAuth callback
         window.addEventListener('DOMContentLoaded', () => {
             // Read OAuth result from query string (server sends ?oauth_success=tool or ?oauth_error=...)
