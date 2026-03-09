@@ -1774,11 +1774,16 @@ ${input}`;
             goWizardStep(1);
 
             // Hide steps 2 and 3 entirely for the new flow
-            document.getElementById('pm-step-2').classList.add('hidden');
-            document.getElementById('pm-step-3').classList.add('hidden');
-            document.querySelector('.pm-tabs').classList.add('hidden');
+            const step2 = document.getElementById('pm-step-2');
+            if (step2) step2.classList.add('hidden');
+            const step3 = document.getElementById('pm-step-3');
+            if (step3) step3.classList.add('hidden');
 
-            document.getElementById('pm-modal').classList.remove('hidden');
+            const tabsContainer = document.querySelector('.pm-step-tab')?.parentElement;
+            if (tabsContainer) tabsContainer.classList.add('hidden');
+
+            const pmModal = document.getElementById('pm-modal');
+            if (pmModal) pmModal.classList.remove('hidden');
         }
 
         function startOAuthFlow(tool, userId) {
