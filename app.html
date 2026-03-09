@@ -1810,15 +1810,25 @@ ${input}`;
 
         // Restore PM buttons on load and handle OAuth callback
         window.addEventListener('DOMContentLoaded', () => {
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            const connectedTool = hashParams.get('connected');
+            // Read OAuth result from query string (server sends ?oauth_success=tool or ?oauth_error=...)
+            const queryParams = new URLSearchParams(window.location.search);
+            const connectedTool = queryParams.get('oauth_success');
+            const oauthError = queryParams.get('oauth_error');
+            const oauthUserId = queryParams.get('user_id');
+
             if (connectedTool) {
-                // Record the connection locally and update UI
+                // Store the userId returned from the server so future imports work
+                if (oauthUserId) localStorage.setItem('device_id', oauthUserId);
                 localStorage.setItem(`pm_${connectedTool}_connected`, 'true');
                 markToolConnected(connectedTool, PM_CONFIG[connectedTool]?.title || connectedTool);
-                showToast('✅', `¡Conexión exitosa con ${PM_CONFIG[connectedTool]?.title || connectedTool}!`);
+                showToast('✅', `¡Conexión exitosa con ${PM_CONFIG[connectedTool]?.title || connectedTool}! Usa "↓ Importar" para cargar tus tareas.`);
+                // Navigate to Conexiones view so user can see the Import button
+                switchView('conexiones');
                 // Clean URL
-                window.history.replaceState(null, null, window.location.pathname + window.location.search);
+                window.history.replaceState(null, null, window.location.pathname);
+            } else if (oauthError) {
+                showToast('❌', `Error al conectar: ${oauthError}. Intenta de nuevo.`);
+                window.history.replaceState(null, null, window.location.pathname);
             }
 
             // Restore state for previously connected tools
@@ -1828,6 +1838,7 @@ ${input}`;
                 }
             });
         });
+
 
         // ===================== UNIVERSAL BACKEND IMPORT =====================
         async function importFromBackend(tool) {
