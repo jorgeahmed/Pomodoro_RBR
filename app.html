@@ -1849,6 +1849,8 @@ ${input}`;
                 switchView('conexiones');
                 // Clean URL
                 window.history.replaceState(null, null, window.location.pathname);
+                // Auto-import tasks so user sees them immediately
+                setTimeout(() => importFromBackend(connectedTool), 800);
             } else if (oauthError) {
                 showToast('❌', `Error al conectar: ${oauthError}. Intenta de nuevo.`);
                 window.history.replaceState(null, null, window.location.pathname);
@@ -1879,8 +1881,9 @@ ${input}`;
                     return;
                 }
                 if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.error || `HTTP ${res.status}`);
+                    let errMsg = `HTTP ${res.status}`;
+                    try { const d = await res.json(); errMsg = d.error || errMsg; } catch { errMsg = await res.text().catch(() => errMsg); }
+                    throw new Error(errMsg);
                 }
 
                 const { tasks } = await res.json();
