@@ -108,7 +108,7 @@ report.get('/tasks/:tool', async (c) => {
         let tasks = [];
 
         if (tool === 'todoist') {
-            const res = await fetch('https://api.todoist.com/rest/v2/tasks', {
+            const res = await fetch('https://api.todoist.com/api/v1/tasks', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const items = await res.json();
