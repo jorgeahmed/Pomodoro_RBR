@@ -584,7 +584,7 @@
                         <div class="grid gap-4">
                             <!-- GitHub card -->
                             <div
-                                class="p-5 rounded-xl border border-notion-border bg-white shadow-sm flex items-center gap-4">
+                                class="hidden p-5 rounded-xl border border-notion-border bg-white shadow-sm flex items-center gap-4">
                                 <div
                                     class="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center flex-shrink-0">
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
@@ -602,7 +602,7 @@
                             </div>
                             <!-- Notion card -->
                             <div
-                                class="p-5 rounded-xl border border-notion-border bg-white shadow-sm flex items-center gap-4">
+                                class="hidden p-5 rounded-xl border border-notion-border bg-white shadow-sm flex items-center gap-4">
                                 <div
                                     class="w-10 h-10 rounded-xl bg-black flex items-center justify-center flex-shrink-0">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
@@ -1732,45 +1732,53 @@ ${input}`;
 
         let _currentPMTool = null;
 
-        function openPMModal(tool) {
+        function getDeviceId() {
+            let id = localStorage.getItem('device_id');
+            if (!id) {
+                id = 'anon_' + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('device_id', id);
+            }
+            return id;
+        }
+
+        async function getUserId() {
+            if (_supabase) {
+                const { data } = await _supabase.auth.getSession();
+                if (data?.session?.user?.id) return data.session.user.id;
+            }
+            return getDeviceId();
+        }
+
+        async function openPMModal(tool) {
             _currentPMTool = tool;
             const cfg = PM_CONFIG[tool];
 
-            // Si no hay usuario logueado en Supabase, forzar login
-            if (!_supabase) { openSupabaseModal(); return; }
-            _supabase.auth.getSession().then(({ data }) => {
-                const userId = data?.session?.user?.id;
-                if (!userId) {
-                    showToast('⚠️', 'Inicia sesión primero para conectar herramientas');
-                    openAuthModal();
-                    return;
-                }
+            const userId = await getUserId();
 
-                document.getElementById('pm-banner').style.background = `linear-gradient(135deg, ${cfg.color}dd, ${cfg.color}88)`;
-                document.getElementById('pm-banner-icon').innerHTML = cfg.icon;
-                document.getElementById('pm-banner-icon').style.background = 'rgba(255,255,255,0.2)';
-                document.getElementById('pm-banner-title').textContent = cfg.title;
-                document.getElementById('pm-banner-desc').textContent = cfg.desc;
+            document.getElementById('pm-banner').style.background = `linear-gradient(135deg, ${cfg.color}dd, ${cfg.color}88)`;
+            document.getElementById('pm-banner-icon').innerHTML = cfg.icon;
+            document.getElementById('pm-banner-icon').style.background = 'rgba(255,255,255,0.2)';
+            document.getElementById('pm-banner-title').textContent = cfg.title;
+            document.getElementById('pm-banner-desc').textContent = cfg.desc;
 
-                // Hide old wizard content, replace with simple OAuth connect button
-                document.getElementById('pm-step-1').innerHTML = `
-                  <div class="text-center py-6">
-                    <p class="text-slate-300 text-sm mb-6">Serás redirigido a <strong>${cfg.title}</strong> para autorizar el acceso a tus tareas. No almacenamos tus contraseñas.</p>
-                    ${cfg.extraHtml || ''}
-                    <button onclick="startOAuthFlow('${tool}', '${userId}')" class="w-full mt-6 py-3 rounded-xl text-white font-bold text-sm shadow-md transition" style="background: linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)">
-                      Conectar ${cfg.title}
-                    </button>
-                  </div>
-                `;
-                goWizardStep(1);
+            // Hide old wizard content, replace with simple OAuth connect button
+            document.getElementById('pm-step-1').innerHTML = `
+                <div class="text-center py-6">
+                <p class="text-slate-300 text-sm mb-6">Serás redirigido a <strong>${cfg.title}</strong> para autorizar el acceso a tus tareas. No almacenamos tus contraseñas.</p>
+                ${cfg.extraHtml || ''}
+                <button onclick="startOAuthFlow('${tool}', '${userId}')" class="w-full mt-6 py-3 rounded-xl text-white font-bold text-sm shadow-md transition" style="background: linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)">
+                    Conectar ${cfg.title}
+                </button>
+                </div>
+            `;
+            goWizardStep(1);
 
-                // Hide steps 2 and 3 entirely for the new flow
-                document.getElementById('pm-step-2').classList.add('hidden');
-                document.getElementById('pm-step-3').classList.add('hidden');
-                document.querySelector('.pm-tabs').classList.add('hidden');
+            // Hide steps 2 and 3 entirely for the new flow
+            document.getElementById('pm-step-2').classList.add('hidden');
+            document.getElementById('pm-step-3').classList.add('hidden');
+            document.querySelector('.pm-tabs').classList.add('hidden');
 
-                document.getElementById('pm-modal').classList.remove('hidden');
-            });
+            document.getElementById('pm-modal').classList.remove('hidden');
         }
 
         function startOAuthFlow(tool, userId) {
@@ -1818,14 +1826,7 @@ ${input}`;
 
         // ===================== UNIVERSAL BACKEND IMPORT =====================
         async function importFromBackend(tool) {
-            if (!_supabase) { showToast('⚠️', 'Supabase no configurado'); return; }
-            const { data } = await _supabase.auth.getSession();
-            const userId = data?.session?.user?.id;
-
-            if (!userId) {
-                showToast('⚠️', 'Inicia sesión para importar tareas');
-                return;
-            }
+            const userId = await getUserId();
 
             showToast('⏳', `Obteniendo tareas de ${PM_CONFIG[tool].title}...`);
             try {
