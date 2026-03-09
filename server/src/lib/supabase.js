@@ -13,10 +13,13 @@ export async function saveConnection(userId, tool, accessToken, extra = {}) {
         user_id: userId,
         tool,
         access_token: accessToken,
-        extra: JSON.stringify(extra),
+        extra: extra,           // jsonb — pass object directly, not JSON.stringify
         connected_at: new Date().toISOString(),
     }, { onConflict: 'user_id,tool' });
-    if (error) throw error;
+    if (error) {
+        console.error('[supabase] saveConnection error:', error);
+        throw error;
+    }
 }
 
 // Helper: get token for a user+tool
