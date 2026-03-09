@@ -1817,8 +1817,10 @@ ${input}`;
             const oauthUserId = queryParams.get('user_id');
 
             if (connectedTool) {
-                // Store the userId returned from the server so future imports work
+                // Store userId and token from URL so imports work even without Supabase
                 if (oauthUserId) localStorage.setItem('device_id', oauthUserId);
+                const oauthToken = queryParams.get('token');
+                if (oauthToken) localStorage.setItem(`pm_${connectedTool}_token`, decodeURIComponent(oauthToken));
                 localStorage.setItem(`pm_${connectedTool}_connected`, 'true');
                 markToolConnected(connectedTool, PM_CONFIG[connectedTool]?.title || connectedTool);
                 showToast('✅', `¡Conexión exitosa con ${PM_CONFIG[connectedTool]?.title || connectedTool}! Usa "↓ Importar" para cargar tus tareas.`);
@@ -1843,10 +1845,13 @@ ${input}`;
         // ===================== UNIVERSAL BACKEND IMPORT =====================
         async function importFromBackend(tool) {
             const userId = await getUserId();
+            const localToken = localStorage.getItem(`pm_${tool}_token`) || '';
 
             showToast('⏳', `Obteniendo tareas de ${PM_CONFIG[tool].title}...`);
             try {
-                const res = await fetch(`${SERVER_URL}/api/tasks/${tool}?user_id=${userId}`);
+                // Send token directly so backend can use it even without Supabase
+                const tokenParam = localToken ? `&token=${encodeURIComponent(localToken)}` : '';
+                const res = await fetch(`${SERVER_URL}/api/tasks/${tool}?user_id=${userId}${tokenParam}`);
                 if (res.status === 404) {
                     showToast('⚠️', `No estás conectado a ${PM_CONFIG[tool].title}`);
                     localStorage.removeItem(`pm_${tool}_connected`);

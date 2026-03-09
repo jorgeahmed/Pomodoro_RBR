@@ -85,13 +85,24 @@ Solo responde con el horario, sin texto extra.`,
 report.get('/tasks/:tool', async (c) => {
     const tool = c.req.param('tool');
     const userId = c.req.query('user_id');
+    const directToken = c.req.query('token'); // sent by frontend as fallback
 
     if (!userId) return c.json({ error: 'user_id required' }, 400);
 
-    const conn = await getConnection(userId, tool);
-    if (!conn) return c.json({ error: `${tool} not connected for this user` }, 404);
+    // Try Supabase first; fall back to the token passed directly from frontend
+    let token = directToken;
+    let connExtra = null;
+    try {
+        const conn = await getConnection(userId, tool);
+        if (conn) {
+            token = conn.access_token;
+            connExtra = conn.extra;
+        }
+    } catch (dbErr) {
+        console.warn(`[tasks/${tool}] Supabase lookup failed (using direct token):`, dbErr.message);
+    }
 
-    const token = conn.access_token;
+    if (!token) return c.json({ error: `${tool} not connected for this user` }, 404);
 
     try {
         let tasks = [];

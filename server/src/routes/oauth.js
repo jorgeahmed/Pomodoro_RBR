@@ -118,11 +118,18 @@ oauth.get('/:tool/callback', async (c) => {
             return c.redirect(`${APP_URL}?oauth_error=token_exchange_failed&tool=${tool}`);
         }
 
-        // Save token to Supabase
-        await saveConnection(userId, tool, accessToken, tokenData);
+        // Try to save to Supabase (optional — app still works without it)
+        try {
+            await saveConnection(userId, tool, accessToken, tokenData);
+            console.log(`[${tool}] Token saved to Supabase for user ${userId}`);
+        } catch (dbErr) {
+            console.warn(`[${tool}] Supabase save failed (non-fatal):`, dbErr.message);
+            // Continue anyway — pass token to frontend via URL
+        }
 
-        // Redirect back to app with success signal
-        return c.redirect(`${APP_URL}?oauth_success=${tool}&user_id=${userId}`);
+        // Always redirect back to app with token in URL so frontend can store it in localStorage
+        const encodedToken = encodeURIComponent(accessToken);
+        return c.redirect(`${APP_URL}?oauth_success=${tool}&user_id=${userId}&token=${encodedToken}`);
     } catch (err) {
         console.error(`[${tool}] OAuth error:`, err);
         return c.redirect(`${APP_URL}?oauth_error=server_error&tool=${tool}`);
