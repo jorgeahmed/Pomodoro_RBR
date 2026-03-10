@@ -112,7 +112,8 @@ report.get('/tasks/:tool', async (c) => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const items = await res.json();
-            tasks = items.slice(0, 30).map(t => ({
+            const taskList = items.results || [];
+            tasks = taskList.slice(0, 30).map(t => ({
                 text: t.content,
                 source: 'Todoist',
                 due: t.due?.string,
