@@ -8,6 +8,15 @@ const API_URL = process.env.API_URL || 'http://localhost:3000';
 
 // ─── Tool configs ──────────────────────────────────────────────────────────
 const TOOLS = {
+    google: {
+        authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+        tokenUrl: 'https://oauth2.googleapis.com/token',
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        scope: 'https://www.googleapis.com/auth/calendar.events',
+        tokenField: 'access_token',
+        extraParams: { access_type: 'offline', prompt: 'consent' },
+    },
     todoist: {
         authorizeUrl: 'https://todoist.com/oauth/authorize',
         tokenUrl: 'https://todoist.com/oauth/access_token',

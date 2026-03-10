@@ -22,7 +22,7 @@ app.use('*', cors({
 
 // Health check
 app.get('/', (c) => c.json({
-    service: 'Syncro-Daily API',
+    service: 'Pomodoro ReBorder API',
     version: '1.0.0',
     status: 'online',
     endpoints: [
@@ -39,6 +39,6 @@ app.route('/api', reportRoutes);
 
 // Start server
 const port = parseInt(process.env.PORT || '3000');
-console.log(`🚀 Syncro-Daily API running on port ${port}`);
+console.log(`🚀 Pomodoro ReBorder API running on port ${port}`);
 
 serve({ fetch: app.fetch, port });

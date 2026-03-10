@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Syncro-Daily | RBR 2026</title>
+    <title>Pomodoro ReBorder | ReBorder</title>
     <meta name="description"
-        content="Syncro-Daily — Tu hub de productividad inteligente para el reto Release Before Ready 2026. Sincroniza, prioriza y conquista tu día." />
+        content="Pomodoro ReBorder — Tu hub de productividad inteligente para el reto Release Before Ready 2026. Sincroniza, prioriza y conquista tu día." />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <link rel="stylesheet"
@@ -223,8 +223,8 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="font-bold text-sm leading-tight text-white">Syncro-Daily</p>
-                    <p class="text-[10px] text-slate-400 font-medium">RBR 2026</p>
+                    <p class="font-bold text-sm leading-tight text-white">Pomodoro ReBorder</p>
+                    <p class="text-[10px] text-slate-400 font-medium">ReBorder</p>
                 </div>
                 <button onclick="toggleSidebar()"
                     class="ml-auto text-notion-muted hover:text-notion-text p-1 rounded hover:bg-notion-hover tooltip"
@@ -658,9 +658,35 @@
                                 <button onclick="openSupabaseModal()" id="supabase-connect-btn"
                                     class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition">Configurar</button>
                             </div>
+                            <!-- Google Calendar card -->
+                            <div
+                                class="p-5 rounded-xl border border-blue-500/30 bg-blue-900/10 shadow-sm flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.64-2.25 1.64-1.74 0-2.48-.83-2.57-1.92H7.64c.13 1.77 1.49 2.88 3.26 3.23V19h2.34v-1.67c1.6-.32 2.86-1.39 2.86-2.99.01-1.98-1.55-2.8-3.79-3.2z"
+                                            fill="#4285F4" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-sm text-blue-200">Google Calendar</p>
+                                    <p id="google-status" class="text-xs text-slate-400">Autenticación y agendado de
+                                        tareas</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="connectGoogle()" id="google-cfg-btn"
+                                        class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition">Conectar</button>
+                                </div>
+                            </div>
+
                             <!-- ===== PM TOOLS SECTION ===== -->
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-2 mb-1">Gestión
-                                de Proyectos</p>
+                            <div class="mt-6 mb-2 border-t border-slate-800 pt-6">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
+                                    Próximamente: Integraciones de Proyectos</p>
+                                <p class="text-xs text-slate-600 mb-4">Integraciones automáticas estarán disponibles en
+                                    futuras versiones.</p>
+                            </div>
                             <!-- Todoist -->
                             <div class="p-4 rounded-xl border border-[#1e2a40] bg-[#131a2a] flex items-center gap-4">
                                 <div
@@ -913,7 +939,7 @@
                     <path d="M18.5 6L10 18h7l-2.5 8L24 14h-7l1.5-8z" fill="#F97316" />
                 </svg>
             </div>
-            <h2 class="font-bold text-xl mb-1">Bienvenido a Syncro-Daily</h2>
+            <h2 class="font-bold text-xl mb-1">Bienvenido a Pomodoro ReBorder</h2>
             <p class="text-xs text-notion-muted mb-6">Inicia sesión para guardar tu plan y recibir actualizaciones</p>
             <!-- Google -->
             <button onclick="signInWithGoogle()"
@@ -959,7 +985,8 @@
             <div class="text-center mb-6">
                 <div class="text-3xl mb-2">🚀</div>
                 <h2 class="font-bold text-xl mb-1">Mantente al día</h2>
-                <p class="text-xs text-notion-muted">Recibe actualizaciones de nuevos features de Syncro-Daily directo a
+                <p class="text-xs text-notion-muted">Recibe actualizaciones de nuevos features de Pomodoro ReBorder
+                    directo a
                     tu email</p>
             </div>
             <div class="space-y-3">
@@ -1192,7 +1219,7 @@
     <script>
         // ===================== DATA =====================
         const GITHUB_REPOS = [
-            { name: 'Syncro-Daily', desc: 'Tu hub RBR', issues: 3, lang: 'React', star: 12 },
+            { name: 'Pomodoro ReBorder', desc: 'Tu hub RBR', issues: 3, lang: 'React', star: 12 },
             { name: 'Pomodoro_RBR', desc: 'Pomodoro timer', issues: 1, lang: 'HTML', star: 5 },
             { name: 'api-productividad', desc: 'REST backend', issues: 7, lang: 'Node.js', star: 3 },
             { name: 'design-system', desc: 'Componentes UI', issues: 2, lang: 'CSS', star: 8 },
@@ -1493,9 +1520,9 @@ ${input}`;
         function exportMarkdown() {
             if (!tasks.length) { showToast('⚠️', 'Primero sincroniza tus tareas.'); return; }
             const now = new Date().toLocaleDateString('es-ES');
-            let md = `# Plan del Día — Syncro-Daily\n**Fecha:** ${now}\n\n## Matriz de Eisenhower\n\n| Tarea | Prioridad | Cuadrante | Tiempo |\n|---|---|---|---|\n`;
+            let md = `# Plan del Día — Pomodoro ReBorder\n**Fecha:** ${now}\n\n## Matriz de Eisenhower\n\n| Tarea | Prioridad | Cuadrante | Tiempo |\n|---|---|---|---|\n`;
             tasks.forEach(t => { md += `| ${t.done ? '~~' + t.text + '~~' : t.text} | ${t.priority} | ${t.quadrant} | ${t.time} |\n`; });
-            md += `\n---\n*Generado por [Syncro-Daily](https://jorgeahmed.github.io/Pomodoro_RBR) — RBR 2026*\n`;
+            md += `\n---\n*Generado por [Pomodoro ReBorder](https://jorgeahmed.github.io/Pomodoro_RBR) — ReBorder*\n`;
             download('syncro-daily-plan.md', md, 'text/markdown');
             showToast('📄', 'Plan exportado como Markdown');
         }
@@ -1504,7 +1531,7 @@ ${input}`;
             if (!tasks.length) { showToast('⚠️', 'Primero sincroniza tus tareas.'); return; }
             const base = new Date();
             base.setHours(9, 0, 0, 0);
-            let ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Syncro-Daily//RBR2026//ES\nCALSCALE:GREGORIAN\n`;
+            let ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Pomodoro ReBorder//RBR2026//ES\nCALSCALE:GREGORIAN\n`;
             tasks.forEach((t, i) => {
                 const start = new Date(base.getTime() + i * 60 * 60 * 1000);
                 const end = new Date(start.getTime() + 30 * 60 * 1000);
@@ -1698,6 +1725,12 @@ ${input}`;
         const SERVER_URL = 'https://pomodororbr-production.up.railway.app';
 
         const PM_CONFIG = {
+            google: {
+                title: 'Google Calendar',
+                color: '#4285F4',
+                icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>`,
+                desc: 'Sincroniza tus tareas con Google Calendar',
+            },
             todoist: {
                 title: 'Todoist', color: '#DB4035',
                 icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M3 6.5A3.5 3.5 0 0 1 6.5 3h11A3.5 3.5 0 0 1 21 6.5v11a3.5 3.5 0 0 1-3.5 3.5h-11A3.5 3.5 0 0 1 3 17.5v-11zm9.78 2.03-4.5 4.5-1.78-1.78a.75.75 0 0 0-1.06 1.06l2.31 2.31a.75.75 0 0 0 1.06 0l5.03-5.03a.75.75 0 0 0-1.06-1.06z"/></svg>`,
@@ -1798,6 +1831,12 @@ ${input}`;
 
             // Redirigir al backend de Railway
             const authUrl = `${SERVER_URL}/api/oauth/${tool}/start?user_id=${userId}${extraQuery}`;
+            window.location.href = authUrl;
+        }
+
+        async function connectGoogle() {
+            const userId = await getUserId(); // Ensure userId is available
+            const authUrl = `${SERVER_URL}/api/oauth/google/start?user_id=${userId}`;
             window.location.href = authUrl;
         }
 
