@@ -2008,7 +2008,7 @@ ${input}`;
                     markToolConnected(connectedTool, PM_CONFIG[connectedTool]?.title || connectedTool);
                     showToast('✅', `¡Conexión exitosa con ${PM_CONFIG[connectedTool]?.title || connectedTool}! Usa "↓ Importar" para cargar tus tareas.`);
                     // Navigate to Conexiones view so user can see the Import button
-                    switchView('conexiones');
+                    setView('conexiones');
                     // Clean URL
                     window.history.replaceState(null, null, window.location.pathname);
                     // Auto-import tasks so user sees them immediately
