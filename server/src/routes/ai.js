@@ -17,11 +17,19 @@ aiRoutes.post('/organize', async (c) => {
             return c.json({ error: 'El servidor no tiene configurada la llave de Gemini' }, 500);
         }
 
-        const prompt = `Eres un experto en productividad. Analiza estas tareas y clasifícalas en la Matriz de Eisenhower.
-Devuelve ÚNICAMENTE un array JSON válido con este formato exacto (sin markdown, sin texto extra):
-[{"text":"nombre de la tarea","priority":"Urgente|Enfoque|Delegar|Eliminar","quadrant":"🔴 Haz ahora|🔵 Planifica|🟡 Delega|⚪ Descarta","color":"red|blue|yellow|gray","time":"estimado como 25 min, 1h, etc"}]
+        const prompt = `Actúa como un CEO experto en productividad y gestión del tiempo (Metodología Pareto 80/20 y Matriz de Eisenhower).
+Tu objetivo es analizar la siguiente lista de tareas y CLASIFICARLAS rigurosamente, no solo copiarlas.
 
-Tareas a analizar:
+REGLAS DE CLASIFICACIÓN EXTREMA:
+1. Evalúa el impacto real de cada tarea. Las tareas estratégicas, que mueven la aguja del negocio (reuniones con consejo, negociaciones, bloqueos críticos, riesgos operativos) DEBEN ser "Urgente" (🔴 Haz ahora) o "Enfoque" (🔵 Planifica).
+2. Las tareas operativas de bajo impacto (revisar correos rutinarios, aprobar compras estándar, ceremonias, actualizar diagramas) DEBEN ser "Delegar" (🟡 Delega) o "Eliminar" (⚪ Descarta).
+3. Sé despiadado: No todo puede ser urgente. Máximo el 20% de las tareas pueden ser 🔴 Haz ahora.
+4. Asigna tiempos realistas en minutos o horas (ej. 30 min, 1h, 15 min).
+
+Devuelve ÚNICAMENTE un array JSON válido con este formato exacto (sin markdown, sin texto extra, solo el JSON puro):
+[{"text":"nombre de la tarea resumido","priority":"Urgente|Enfoque|Delegar|Eliminar","quadrant":"🔴 Haz ahora|🔵 Planifica|🟡 Delega|⚪ Descarta","color":"red|blue|yellow|gray","time":"estimado como 25 min, 1h, etc"}]
+
+Tareas a analizar detenidamente:
 ${input}`;
 
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {

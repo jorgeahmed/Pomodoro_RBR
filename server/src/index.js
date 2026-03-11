@@ -41,7 +41,7 @@ app.get('/', (c) => c.json({
 
 // Routes
 app.route('/api/oauth', oauthRoutes);
-app.route('/api', reportRoutes);
+app.route('/api/report', reportRoutes);
 app.route('/api/analytics', analyticsRoutes);
 app.route('/api/calendar', calendarRoutes);
 app.route('/api/ai', aiRoutes);

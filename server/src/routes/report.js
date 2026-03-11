@@ -76,8 +76,8 @@ Solo responde con el horario, sin texto extra.`,
             date,
         });
     } catch (err) {
-        console.error('[report/send]', err);
-        return c.json({ error: err.message }, 500);
+        console.error('[report/send] Error:', err);
+        return c.json({ error: err.message || 'Error desconocido al enviar el reporte' }, 500);
     }
 });
 
