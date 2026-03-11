@@ -6,6 +6,7 @@ import oauthRoutes from './routes/oauth.js';
 import reportRoutes from './routes/report.js';
 import analyticsRoutes from './routes/analytics.js';
 import calendarRoutes from './routes/calendar.js';
+import aiRoutes from './routes/ai.js';
 
 const app = new Hono();
 
@@ -33,7 +34,8 @@ app.get('/', (c) => c.json({
         'POST /api/report/send                    — Send daily report email',
         'GET  /api/tasks/:tool?user_id=xxx        — Fetch tasks from connected tool',
         'POST /api/analytics/delegate             — Send delegation email',
-        'POST /api/calendar/schedule-batch        — Schedule events to GCal'
+        'POST /api/calendar/schedule-batch        — Schedule events to GCal',
+        'POST /api/ai/organize                    — Organize tasks utilizing internal Gemini Key'
     ],
 }));
 
@@ -42,6 +44,7 @@ app.route('/api/oauth', oauthRoutes);
 app.route('/api', reportRoutes);
 app.route('/api/analytics', analyticsRoutes);
 app.route('/api/calendar', calendarRoutes);
+app.route('/api/ai', aiRoutes);
 
 // Start server
 const port = parseInt(process.env.PORT || '3000');
