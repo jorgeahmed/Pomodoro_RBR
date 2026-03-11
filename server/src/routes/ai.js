@@ -32,7 +32,7 @@ Devuelve ÚNICAMENTE un array JSON válido con este formato exacto (sin markdown
 Tareas a analizar detenidamente:
 ${input}`;
 
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
