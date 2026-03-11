@@ -48,9 +48,19 @@ ${input}`;
 
         const data = await res.json();
         const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-        // Strip possible markdown code fences
-        const clean = raw.replace(/```json?/gi, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(clean);
+        console.log('Gemini Raw Response:', raw);
+
+        // Strip possible markdown code fences and extract ONLY the array
+        const match = raw.match(/\[.*\]/s);
+        const clean = match ? match[0] : '[]';
+
+        let parsed = [];
+        try {
+            parsed = JSON.parse(clean || '[]');
+        } catch (e) {
+            console.error('JSON Parse Error for string:', clean);
+            throw new Error('Gemini returned invalid JSON structure.');
+        }
 
         const tasks = parsed.map((t, i) => ({ ...t, done: false, id: 'task-' + i }));
 
