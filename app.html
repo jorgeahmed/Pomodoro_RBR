@@ -1452,7 +1452,15 @@ ${input}`;
         <td class="px-4 py-3 text-xs text-slate-400">${t.quadrant}</td>
         <td class="px-4 py-3 text-xs text-slate-400 font-mono">${t.time}</td>
         <td class="px-4 py-3 text-center">
-          <input type="checkbox" id="chk-${t.id}" onchange="toggleTask(${i})" class="w-4 h-4 rounded cursor-pointer" style="accent-color:#1152d4" ${t.done ? 'checked' : ''} />
+          ${t.priority === 'Delegar' && !t.delegated
+                            ? `<div class="flex items-center gap-1 justify-center">
+                 <input type="email" id="email-${t.id}" placeholder="email@ejemplo.com" class="text-[10px] px-1.5 py-1 rounded bg-[#101622] border border-[#1e2a40] text-slate-200 w-28 focus:outline-none" />
+                 <button onclick="delegateTask('${t.id}', '${t.text.replace(/'/g, "\\'")}')" class="bg-amber-600 hover:bg-amber-500 text-white text-[10px] px-2 py-1 rounded font-bold transition">Enviar</button>
+               </div>`
+                            : t.delegated
+                                ? `<span class="text-xs text-amber-500 font-bold">✓ Enviado</span>`
+                                : `<input type="checkbox" id="chk-${t.id}" onchange="toggleTask(${i})" class="w-4 h-4 rounded cursor-pointer" style="accent-color:#1152d4" ${t.done ? 'checked' : ''} />`
+                        }
         </td>
       `;
                     tbody.appendChild(tr);
@@ -1473,6 +1481,46 @@ ${input}`;
                 const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
                 document.getElementById('progress-bar').style.width = pct + '%';
                 document.getElementById('progress-label').textContent = `${completedCount} / ${total} tareas`;
+            }
+
+            async function delegateTask(taskId, taskText) {
+                const emailInput = document.getElementById(`email-${taskId}`);
+                if (!emailInput) return;
+                const email = emailInput.value.trim();
+
+                if (!email || !email.includes('@')) {
+                    showToast('⚠️', 'Por favor ingresa un correo electrónico válido');
+                    return;
+                }
+
+                showToast('⏳', 'Enviando correo de delegación...');
+
+                try {
+                    const res = await fetch(`${SERVER_URL}/api/analytics/delegate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: email,
+                            task: taskText,
+                            user_id: await getUserId()
+                        })
+                    });
+
+                    if (res.ok) {
+                        showToast('✅', `Tarea delegada a ${email}`);
+                        // Update UI
+                        const t = tasks.find(x => x.id === taskId);
+                        if (t) {
+                            t.delegated = true;
+                            renderMatrix();
+                        }
+                    } else {
+                        throw new Error('Server returned ' + res.status);
+                    }
+                } catch (e) {
+                    console.error('Error delegating:', e);
+                    showToast('❌', 'Error al enviar el correo. Intenta de nuevo.');
+                }
             }
 
             function renderPlan() {

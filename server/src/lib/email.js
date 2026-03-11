@@ -5,21 +5,39 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = 'Syncro-Daily <noreply@syncro-daily.app>';
 
 export async function sendDailyReport({ to, name, reportHtml, date }) {
-    return resend.emails.send({
-        from: FROM,
-        to,
-        subject: `⚡ Tu Plan del Día — ${date}`,
-        html: reportHtml,
-    });
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: `⚡ Tu Plan del Día — ${date}`,
+    html: reportHtml,
+  });
+}
+
+export async function sendDelegationEmail({ to, taskText, fromUser }) {
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: `📌 Tarea delegada: ${taskText.substring(0, 40)}...`,
+    html: `
+        <div style="font-family: Inter, system-ui, sans-serif; max-width:600px; margin:0 auto; padding:32px 16px; background:#0f1623; color:#fff;">
+          <h2 style="color:#e2e8f0; margin-bottom:8px;">📌 Tarea Delegada</h2>
+          <p style="color:#94a3b8; font-size:14px;"><strong>${fromUser}</strong> te ha asignado la siguiente actividad desde Pomodoro ReBorder:</p>
+          <div style="background:#161d2e; padding:20px; border-radius:12px; border:1px solid #1e2a40; margin:24px 0;">
+            <p style="font-size:16px; margin:0; color:#e2e8f0; font-weight:bold;">${taskText}</p>
+          </div>
+          <p style="color:#64748b; font-size:12px;">¡Mucho éxito completándola!</p>
+        </div>
+        `
+  });
 }
 
 export function buildReportHtml({ name, date, tasks, schedule }) {
-    const quadrantColors = {
-        'DO FIRST': '#ef4444', 'SCHEDULE': '#3b82f6',
-        'DELEGATE': '#f59e0b', 'ELIMINATE': '#6b7280',
-    };
+  const quadrantColors = {
+    'DO FIRST': '#ef4444', 'SCHEDULE': '#3b82f6',
+    'DELEGATE': '#f59e0b', 'ELIMINATE': '#6b7280',
+  };
 
-    const taskRows = tasks.map(t => `
+  const taskRows = tasks.map(t => `
     <tr style="border-bottom:1px solid #1e2a40">
       <td style="padding:10px 12px;color:#e2e8f0;font-size:14px">${t.text}</td>
       <td style="padding:10px 12px;text-align:center">
@@ -31,13 +49,13 @@ export function buildReportHtml({ name, date, tasks, schedule }) {
     </tr>
   `).join('');
 
-    const scheduleBlock = schedule ? `
+  const scheduleBlock = schedule ? `
     <div style="background:#131a2a;border:1px solid #1e2a40;border-radius:12px;padding:20px;margin:20px 0">
       <h3 style="margin:0 0 12px;color:#e2e8f0;font-size:15px">📅 Programa de Trabajo</h3>
       <pre style="margin:0;color:#94a3b8;font-size:13px;white-space:pre-wrap;line-height:1.6">${schedule}</pre>
     </div>` : '';
 
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="es">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>

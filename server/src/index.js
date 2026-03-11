@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import oauthRoutes from './routes/oauth.js';
 import reportRoutes from './routes/report.js';
+import analyticsRoutes from './routes/analytics.js';
 
 const app = new Hono();
 
@@ -30,12 +31,14 @@ app.get('/', (c) => c.json({
         'GET  /api/oauth/:tool/callback           — OAuth callback (handle by server)',
         'POST /api/report/send                    — Send daily report email',
         'GET  /api/tasks/:tool?user_id=xxx        — Fetch tasks from connected tool',
+        'POST /api/analytics/delegate             — Send delegation email',
     ],
 }));
 
 // Routes
 app.route('/api/oauth', oauthRoutes);
 app.route('/api', reportRoutes);
+app.route('/api/analytics', analyticsRoutes);
 
 // Start server
 const port = parseInt(process.env.PORT || '3000');
