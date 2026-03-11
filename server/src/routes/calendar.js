@@ -48,11 +48,19 @@ app.post('/schedule-batch', async (c) => {
             if (!response.ok) {
                 const errData = await response.json();
                 console.error('Error inserting event:', errData);
+                if (response.status === 401 || errData?.error?.code === 401) {
+                    return c.json({ error: 'Credenciales de Google expiradas.' }, 401);
+                }
                 results.push({ success: false, summary: evt.summary, error: errData.error.message });
             } else {
                 const data = await response.json();
                 results.push({ success: true, summary: evt.summary, link: data.htmlLink });
             }
+        }
+
+        const allFailed = results.length > 0 && results.every(r => !r.success);
+        if (allFailed) {
+            return c.json({ error: 'No se pudo crear ningún evento en Google Calendar.' }, 500);
         }
 
         return c.json({ success: true, results });

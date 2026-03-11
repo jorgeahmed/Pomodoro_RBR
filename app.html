@@ -1624,7 +1624,21 @@
                         // Mark as synced
                         tasksToSync.forEach(t => t.gcalSynced = true);
                     } else {
-                        console.error('Calendar sync warning:', await res.text());
+                        if (res.status === 401) {
+                            sessionStorage.removeItem('pm_google_token');
+                            sessionStorage.setItem('pm_google_connected', 'false');
+                            showToast('🔑', 'Sesión de Google expirada. Por favor reconecta tu cuenta.');
+                            const btn = document.getElementById('google-cfg-btn');
+                            if (btn) {
+                                btn.textContent = 'Conectar';
+                                btn.classList.remove('bg-green-500');
+                                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                            }
+                        } else {
+                            const errDesc = await res.json().catch(() => ({}));
+                            console.error('Calendar sync error:', errDesc);
+                            showToast('❌', 'Error al agendar en Google Calendar');
+                        }
                     }
                 } catch (e) {
                     console.error('Error syncing calendar:', e);
@@ -1749,11 +1763,12 @@
                     if (res.ok) {
                         showToast('✅', `Plan del Día enviado a ${email}`);
                     } else {
-                        throw new Error(await res.text());
+                        const errObj = await res.json().catch(() => ({}));
+                        throw new Error(errObj.error || 'Error en servidor de Resend');
                     }
                 } catch (e) {
                     console.error('Email send failed:', e);
-                    showToast('❌', 'Error enviando el correo.');
+                    showToast('❌', `Error: ${e.message}`.substring(0, 50));
                 } finally {
                     btn.innerHTML = originalHtml;
                     btn.disabled = false;

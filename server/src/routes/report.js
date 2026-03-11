@@ -68,7 +68,12 @@ Solo responde con el horario, sin texto extra.`,
             }
         }
 
-        await Promise.allSettled(results);
+        const outcomes = await Promise.all(results);
+        const failedEmail = outcomes.find(o => o && o.error);
+
+        if (failedEmail) {
+            throw new Error(`Error de Resend: ${failedEmail.error.message}`);
+        }
 
         return c.json({
             success: true,
