@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = 'Syncro-Daily <noreply@syncro-daily.app>';
+const FROM = 'Acme <onboarding@resend.dev>';
 
 export async function sendDailyReport({ to, name, reportHtml, date }) {
   return resend.emails.send({

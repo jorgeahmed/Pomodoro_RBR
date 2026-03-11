@@ -1527,10 +1527,15 @@
 
                     if (res.ok) {
                         showToast('✅', `Tarea delegada a ${email}`);
-                        // Update UI
+                        // Update UI and mark as done
                         const t = tasks.find(x => x.id === taskId);
                         if (t) {
                             t.delegated = true;
+                            if (!t.done) {
+                                t.done = true;
+                                completedCount = tasks.filter(task => task.done).length;
+                                updateProgress();
+                            }
                             renderMatrix();
                         }
                     } else {
@@ -1718,8 +1723,9 @@
                     ics += `BEGIN:VEVENT\nUID:syncro-${i}-${Date.now()}@rbr2026\nDTSTART:${fmt(start)}\nDTEND:${fmt(end)}\nSUMMARY:[${t.priority}] ${t.text}\nDESCRIPTION:Cuadrante: ${t.quadrant}\\nTiempo: ${t.time}\nEND:VEVENT\n`;
                 });
                 ics += `END:VCALENDAR`;
-                download('syncro-daily.ics', ics, 'text/calendar');
-                showToast('📅', 'Calendario .ics descargado');
+                const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(base).toLowerCase().replace('é', 'e').replace('á', 'a');
+                download(`plan-${dayName}.ics`, ics, 'text/calendar');
+                showToast('📅', `Calendario (${dayName}) descargado`);
             }
 
             async function exportEmail() {
