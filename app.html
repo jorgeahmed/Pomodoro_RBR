@@ -1386,9 +1386,18 @@
                     btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 10h9L7 22l2-10H1L13 2z"/></svg> Sincronizar Prioridades';
 
                     // Fallback to local heuristic if server fails
-                    showToast('💡', 'Problema con la IA del servidor — usando análisis local avanzado.');
-                    const lines = input.split('\n').filter(l => l.trim().length > 0).map(l => l.replace(/^[-*•]\s*/, '').trim());
+                    showToast('💡', 'Filtrando tareas localmente (Modo Offline).');
+
+                    // Regex Sanitizer for fallback extraction
+                    const lines = input.split('\n')
+                        .map(l => l.replace(/^[-*•"'\d.]+\s*/g, '').trim())
+                        .filter(l => l.length > 2);
+
                     tasks = lines.map((line, i) => categorizeTaskLocal(line, i));
+                    if (tasks.length === 0) {
+                        tasks = [{ text: input.substring(0, 50) + "...", priority: "Urgente", quadrant: "🔴 Haz ahora", color: "red", time: "25 min", done: false, id: "task-0" }];
+                    }
+
                     completedCount = 0;
                     renderMatrix();
                     renderPlan();
@@ -1402,13 +1411,18 @@
 
             function categorizeTaskLocal(text, idx) {
                 const low = text.toLowerCase();
-                const times = ['5 min', '10 min', '15 min', '20 min', '25 min', '30 min', '45 min', '1h', '1.5h', '2h'];
-                const urgent = /urgent|hoy|ahora|deadline|entreg|asap|reporte|llamad|mvp|cliente|fix/.test(low);
-                const important = /report|client|mvp|product|deploy|reporte|plan|quarter|q2|road|revisar|pr |issue|estrateg/.test(low);
-                if (urgent && important) return { text, priority: 'Urgente', quadrant: '🔴 Haz ahora', color: 'red', time: times[7 + (idx % 2)], done: false, id: 'task-' + idx };
-                if (!urgent && important) return { text, priority: 'Enfoque', quadrant: '🔵 Planifica', color: 'blue', time: times[5 + (idx % 3)], done: false, id: 'task-' + idx };
-                if (urgent && !important) return { text, priority: 'Delegar', quadrant: '🟡 Delega', color: 'yellow', time: times[2 + (idx % 3)], done: false, id: 'task-' + idx };
-                return { text, priority: 'Eliminar', quadrant: '⚪ Descarta', color: 'gray', time: times[idx % 4], done: false, id: 'task-' + idx };
+                const times = ['5 min', '15 min', '25 min', '45 min', '1h'];
+
+                const urgent = /urgent|hoy|ahora|deadline|entreg|asap|llamad|cliente|reunión|urgente/.test(low);
+                const important = /estrategia|ingreso|report|revisión|analizar|presupuesto|plan|proyecto|junta/.test(low);
+
+                if (urgent || important) {
+                    if (urgent && important) return { text, priority: 'Urgente', quadrant: '🔴 Haz ahora', color: 'red', time: times[2 + (idx % 2)], done: false, id: 'task-' + idx };
+                    if (important) return { text, priority: 'Enfoque', quadrant: '🔵 Planifica', color: 'blue', time: times[3 + (idx % 2)], done: false, id: 'task-' + idx };
+                    return { text, priority: 'Delegar', quadrant: '🟡 Delega', color: 'yellow', time: times[1 + (idx % 2)], done: false, id: 'task-' + idx };
+                }
+
+                return { text, priority: 'Eliminar', quadrant: '⚪ Descarta', color: 'gray', time: times[idx % 2], done: false, id: 'task-' + idx };
             }
 
             const BADGE = {
