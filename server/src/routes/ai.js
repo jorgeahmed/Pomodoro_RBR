@@ -50,9 +50,12 @@ ${input}`;
         const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
         console.log('Gemini Raw Response:', raw);
 
-        // Strip possible markdown code fences and extract ONLY the array
-        const match = raw.match(/\[.*\]/s);
-        const clean = match ? match[0] : '[]';
+        // Extract ONLY the array, handling multiple lines and spaces robustly
+        const match = raw.match(/\[[\s\S]*\]/);
+        let clean = match ? match[0] : '[]';
+
+        // Additional cleanup just in case Gemini wrapped it in weird invisible markdown
+        clean = clean.replace(/```json/gi, '').replace(/```/g, '').trim();
 
         let parsed = [];
         try {
