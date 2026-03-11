@@ -5,6 +5,7 @@ import { logger } from 'hono/logger';
 import oauthRoutes from './routes/oauth.js';
 import reportRoutes from './routes/report.js';
 import analyticsRoutes from './routes/analytics.js';
+import calendarRoutes from './routes/calendar.js';
 
 const app = new Hono();
 
@@ -32,6 +33,7 @@ app.get('/', (c) => c.json({
         'POST /api/report/send                    — Send daily report email',
         'GET  /api/tasks/:tool?user_id=xxx        — Fetch tasks from connected tool',
         'POST /api/analytics/delegate             — Send delegation email',
+        'POST /api/calendar/schedule-batch        — Schedule events to GCal'
     ],
 }));
 
@@ -39,6 +41,7 @@ app.get('/', (c) => c.json({
 app.route('/api/oauth', oauthRoutes);
 app.route('/api', reportRoutes);
 app.route('/api/analytics', analyticsRoutes);
+app.route('/api/calendar', calendarRoutes);
 
 // Start server
 const port = parseInt(process.env.PORT || '3000');

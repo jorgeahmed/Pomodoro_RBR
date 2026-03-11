@@ -1534,8 +1534,25 @@ ${input}`;
                 });
 
                 let hour = 9;
+                const today = new Date();
+                const tasksWithTimes = [];
+
                 sorted.forEach(t => {
                     const timeStr = `${String(hour).padStart(2, '0')}:00`;
+
+                    const startDt = new Date(today);
+                    startDt.setHours(hour, 0, 0, 0);
+                    const endDt = new Date(startDt);
+                    endDt.setHours(hour + 1, 0, 0, 0);
+
+                    // Attach times to the task reference
+                    const refList = tasks.find(x => x.id === t.id);
+                    if (refList) {
+                        refList.startTime = startDt.toISOString();
+                        refList.endTime = endDt.toISOString();
+                        tasksWithTimes.push(refList);
+                    }
+
                     hour++;
                     const div = document.createElement('div');
                     div.className = `flex gap-4 p-4 rounded-xl bg-white border border-notion-border shadow-sm hover:shadow-md transition-shadow`;
@@ -1555,6 +1572,44 @@ ${input}`;
 
                 empty.classList.toggle('hidden', tasks.length > 0);
                 container.classList.toggle('hidden', tasks.length === 0);
+
+                // Check for tasks that haven't been pushed to GCal yet
+                const unSynced = tasksWithTimes.filter(t => !t.gcalSynced && t.color !== 'gray');
+                if (unSynced.length > 0 && sessionStorage.getItem('pm_google_token')) {
+                    syncToGoogleCalendar(unSynced);
+                }
+            }
+
+            async function syncToGoogleCalendar(tasksToSync) {
+                const token = sessionStorage.getItem('pm_google_token');
+                if (!token) return;
+
+                // showToast('⏳', 'Agendando tareas en Google Calendar...');
+
+                const events = tasksToSync.map(t => ({
+                    summary: `[${t.priority}] ${t.text}`,
+                    description: `Prioridad: ${t.priority}\\nCuadrante: ${t.quadrant}\\nTiempo estimado: ${t.time}\\n\\nAuto-programado por Pomodoro ReBorder ⚡`,
+                    startTime: t.startTime,
+                    endTime: t.endTime
+                }));
+
+                try {
+                    const res = await fetch(`${SERVER_URL}/api/calendar/schedule-batch`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token, events })
+                    });
+
+                    if (res.ok) {
+                        showToast('📅', 'Tus tareas han sido agendadas en Google Calendar con alertas');
+                        // Mark as synced
+                        tasksToSync.forEach(t => t.gcalSynced = true);
+                    } else {
+                        console.error('Calendar sync warning:', await res.text());
+                    }
+                } catch (e) {
+                    console.error('Error syncing calendar:', e);
+                }
             }
 
             // ===================== GITHUB OAUTH SIM =====================
