@@ -58,7 +58,7 @@ ${input}`;
         try {
             parsed = JSON.parse(raw);
         } catch (e) {
-            console.error('JSON Parse Error for string:', clean);
+            console.error('JSON Parse Error for string:', raw);
             throw new Error('Gemini returned invalid JSON structure.');
         }
 
