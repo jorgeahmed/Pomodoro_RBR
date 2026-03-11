@@ -13,7 +13,7 @@ const TOOLS = {
         tokenUrl: 'https://oauth2.googleapis.com/token',
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        scope: 'https://www.googleapis.com/auth/calendar.events',
+        scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
         tokenField: 'access_token',
         extraParams: { access_type: 'offline', prompt: 'consent' },
     },
@@ -136,9 +136,22 @@ oauth.get('/:tool/callback', async (c) => {
             // Continue anyway — pass token to frontend via URL
         }
 
+        let userEmail = '';
+        if (tool === 'google') {
+            try {
+                const infoRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const info = await infoRes.json();
+                userEmail = info.email || '';
+            } catch (e) {
+                console.warn('Could not fetch user info from Google', e);
+            }
+        }
+
         // Always redirect back to app with token in URL so frontend can store it in localStorage
         const encodedToken = encodeURIComponent(accessToken);
-        return c.redirect(`${APP_URL}?oauth_success=${tool}&user_id=${userId}&token=${encodedToken}`);
+        return c.redirect(`${APP_URL}?oauth_success=${tool}&user_id=${userId}&token=${encodedToken}&email=${encodeURIComponent(userEmail)}`);
     } catch (err) {
         console.error(`[${tool}] OAuth error:`, err);
         return c.redirect(`${APP_URL}?oauth_error=server_error&tool=${tool}`);

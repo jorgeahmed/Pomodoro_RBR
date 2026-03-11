@@ -1704,10 +1704,10 @@ ${input}`;
             async function exportEmail() {
                 if (!tasks.length) { showToast('⚠️', 'Primero sincroniza tus tareas.'); return; }
 
-                // Get user info from Supabase session if available
-                let email = '';
+                // Get user info from Supabase session or Google OAuth session
+                let email = sessionStorage.getItem('pm_google_email') || '';
                 let name = '';
-                if (_supabase) {
+                if (_supabase && !email) {
                     const { data: { session } } = await _supabase.auth.getSession();
                     if (session?.user) {
                         email = session.user.email;
@@ -2115,13 +2115,14 @@ ${input}`;
                 const oauthUserId = queryParams.get('user_id');
 
                 if (connectedTool) {
-                    // Store userId and token from URL so imports work even without Supabase
                     if (oauthUserId) localStorage.setItem('device_id', oauthUserId);
                     const oauthToken = queryParams.get('token');
+                    const oauthEmail = queryParams.get('email');
                     if (oauthToken) {
                         if (connectedTool === 'google') {
                             sessionStorage.setItem('pm_google_token', decodeURIComponent(oauthToken));
                             sessionStorage.setItem('pm_google_connected', 'true');
+                            if (oauthEmail) sessionStorage.setItem('pm_google_email', decodeURIComponent(oauthEmail));
                         } else {
                             localStorage.setItem(`pm_${connectedTool}_token`, decodeURIComponent(oauthToken));
                             localStorage.setItem(`pm_${connectedTool}_connected`, 'true');
