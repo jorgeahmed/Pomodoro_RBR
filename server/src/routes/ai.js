@@ -58,8 +58,21 @@ ${input}`;
         try {
             parsed = JSON.parse(raw);
         } catch (e) {
-            console.error('JSON Parse Error for string:', raw);
-            throw new Error('Gemini returned invalid JSON structure.');
+            console.error('JSON Parse Error:', e.message);
+            console.error('Failed String:', raw);
+
+            // Fallback: Gemini sometimes hallucinates unescaped newlines or trailing commas
+            try {
+                // Remove trailing commas before brackets/braces
+                let relaxed = raw.replace(/,\s*([\]}])/g, '$1');
+                // Escape literal newlines inside strings
+                relaxed = relaxed.replace(/\n/g, '\\n');
+                parsed = JSON.parse(relaxed);
+                console.log('Fallback relaxed parsing succeeded.');
+            } catch (fallbackErr) {
+                console.error('Fallback parse also failed:', fallbackErr.message);
+                throw new Error('Gemini returned unparseable JSON structure.');
+            }
         }
 
         const tasks = parsed.map((t, i) => ({ ...t, done: false, id: 'task-' + i }));
