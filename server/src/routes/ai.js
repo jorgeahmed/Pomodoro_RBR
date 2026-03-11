@@ -37,7 +37,11 @@ ${input}`;
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
+                generationConfig: {
+                    temperature: 0.2,
+                    responseMimeType: "application/json",
+                    maxOutputTokens: 2048
+                }
             })
         });
 
@@ -47,19 +51,12 @@ ${input}`;
         }
 
         const data = await res.json();
-        const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+        let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
         console.log('Gemini Raw Response:', raw);
-
-        // Extract ONLY the array, handling multiple lines and spaces robustly
-        const match = raw.match(/\[[\s\S]*\]/);
-        let clean = match ? match[0] : '[]';
-
-        // Additional cleanup just in case Gemini wrapped it in weird invisible markdown
-        clean = clean.replace(/```json/gi, '').replace(/```/g, '').trim();
 
         let parsed = [];
         try {
-            parsed = JSON.parse(clean || '[]');
+            parsed = JSON.parse(raw);
         } catch (e) {
             console.error('JSON Parse Error for string:', clean);
             throw new Error('Gemini returned invalid JSON structure.');
