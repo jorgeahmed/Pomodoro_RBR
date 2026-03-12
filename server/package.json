@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
-    "@supabase/supabase-js": "^2.49.1",
+    "@supabase/supabase-js": "^2.99.1",
+    "dotenv": "^17.3.1",
     "hono": "^4.7.4",
     "resend": "^4.1.2"
   }

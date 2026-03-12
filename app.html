@@ -1496,10 +1496,17 @@
             function renderMatrix() {
                 const tbody = document.getElementById('matrix-body');
                 tbody.innerHTML = '';
+                let visibleTasks = 0;
+
                 tasks.forEach((t, i) => {
+                    if (t.done && !t.delegated) return; // Ocultar tareas hechas (excepto si fue delegada para que vean el ✓ Enviado)
+                    if (t.delegated && t.hidden) return; // Si la delegamos y ya pasó el tiempo, la ocultamos
+
+                    visibleTasks++;
                     const src = detectSource(t.text);
                     const tr = document.createElement('tr');
-                    tr.className = `priority-row ${ROW_BG[t.color]} hover:bg-white/5 transition-colors cursor-pointer`;
+                    tr.id = `row-${t.id}`;
+                    tr.className = `priority-row ${ROW_BG[t.color]} hover:bg-white/5 transition-all duration-300 cursor-pointer`;
                     tr.innerHTML = `
         <td class="w-[45%] px-4 py-3 font-medium text-sm">
           <span id="txt-${t.id}" class="${t.done ? 'line-through text-slate-500' : 'text-slate-100'}">${t.text}</span>
@@ -1524,15 +1531,34 @@
       `;
                     tbody.appendChild(tr);
                 });
+
+                if (visibleTasks === 0 && tasks.length > 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="6" class="text-center py-10 text-slate-400 font-medium">¡Todas las tareas activas de hoy están completadas! 🎉<br><span class="text-xs text-slate-500 mt-2 block">Se guardarán en tu Historial automático.</span></td>`;
+                    tbody.appendChild(tr);
+                }
             }
 
             function toggleTask(idx) {
                 tasks[idx].done = !tasks[idx].done;
                 completedCount = tasks.filter(t => t.done).length;
-                const txt = document.getElementById('txt-' + tasks[idx].id);
-                txt.classList.toggle('line-through', tasks[idx].done);
-                txt.classList.toggle('text-slate-500', tasks[idx].done);
                 updateProgress();
+
+                const tr = document.getElementById('row-' + tasks[idx].id);
+                if (tr && tasks[idx].done) {
+                    // Strike out text instantly
+                    const txt = document.getElementById('txt-' + tasks[idx].id);
+                    if (txt) txt.classList.add('line-through', 'text-slate-500');
+                    tr.style.opacity = '0.4';
+
+                    // After short delay, animate out and re-render
+                    setTimeout(() => {
+                        renderMatrix();
+                        saveDailyHistory(tasks); // auto save
+                    }, 500);
+                } else {
+                    renderMatrix();
+                }
             }
 
             function updateProgress() {
@@ -1577,6 +1603,13 @@
                                 updateProgress();
                             }
                             renderMatrix();
+
+                            // Hide delegated task after showing it as success for 2 seconds
+                            setTimeout(() => {
+                                t.hidden = true;
+                                renderMatrix();
+                                saveDailyHistory(tasks);
+                            }, 2000);
                         }
                     } else {
                         throw new Error('Server returned ' + res.status);
