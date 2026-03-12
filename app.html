@@ -2046,31 +2046,38 @@
                         const dateTitle = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(dateObj);
                         const progress = Math.round((day.tasks.filter(t => t.done).length / day.tasks.length) * 100) || 0;
 
+                        const weightList = { 'Urgente': 1, 'Enfoque': 2, 'Delegar': 3, 'Eliminar': 4 };
+                        day.tasks.sort((a, b) => (weightList[a.priority] || 99) - (weightList[b.priority] || 99));
+
                         let rows = '';
                         day.tasks.forEach(t => {
-                            const badgeColor = t.color === 'red' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                t.color === 'blue' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                                    t.color === 'yellow' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                                        'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                            let badgeColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                            if (t.priority === 'Urgente') badgeColor = 'bg-red-500/10 text-red-500 border-red-500/20';
+                            else if (t.priority === 'Enfoque') badgeColor = 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+                            else if (t.priority === 'Delegar') badgeColor = 'bg-yellow-500/10 text-amber-500 border-amber-500/20';
 
                             rows += `
-                                <div class="flex items-center justify-between py-2 border-t border-[#1e2a40]/50 hover:bg-white/5 px-4 transition-colors">
-                                    <div class="flex items-center gap-3 w-2/3">
+                                <tr class="border-b border-[#1e2a40]/50 hover:bg-white/5 transition-colors">
+                                    <td class="px-4 py-3 w-[40%] flex items-center gap-3">
                                         <div class="flex-shrink-0 w-4 h-4 rounded-full border ${t.done ? 'bg-blue-500 border-blue-500 flex items-center justify-center' : 'border-slate-600'}">
                                             ${t.done ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
                                         </div>
-                                        <p class="text-sm font-medium ${t.done ? 'text-slate-500 line-through' : 'text-slate-200'} truncate">${t.task_name}</p>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${t.priority}</span>
-                                        <span class="text-[10px] text-slate-500 font-mono w-10 text-right">${t.estimated_time}</span>
-                                    </div>
-                                </div>
+                                        <p class="text-sm font-medium ${t.done ? 'text-slate-500 line-through' : 'text-slate-200'} truncate" title="${t.task_name}">${t.task_name}</p>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${t.priority || 'Sin prioridad'}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-slate-400">${t.quadrant || '-'}</td>
+                                    <td class="px-4 py-3 text-xs text-slate-400 font-mono">${t.estimated_time || '-'}</td>
+                                    <td class="px-4 py-3 w-[25%]">
+                                        <input type="text" placeholder="Añadir nota..." class="w-full bg-[#101622] border border-[#1e2a40] rounded text-xs px-2 py-1.5 text-slate-300 focus:outline-none focus:border-blue-500/50" />
+                                    </td>
+                                </tr>
                             `;
                         });
 
                         div.innerHTML = `
-                            <div class="bg-[#161d2e] px-4 py-3 flex items-center justify-between border-b border-[#1e2a40]">
+                            <div class="bg-[#161d2e] px-4 py-3 flex items-center justify-between">
                                 <h3 class="font-bold text-white capitalize flex items-center gap-2">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-blue-400" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                                     ${dateTitle}
@@ -2082,8 +2089,21 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="py-1">
-                                ${rows}
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[600px]">
+                                    <thead>
+                                        <tr class="bg-[#101622] border-y border-[#1e2a40] text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                                            <th class="px-4 py-3 w-[40%]">Tarea</th>
+                                            <th class="px-4 py-3">Prioridad</th>
+                                            <th class="px-4 py-3">Cuadrante</th>
+                                            <th class="px-4 py-3">⏱ Est.</th>
+                                            <th class="px-4 py-3 w-[25%]">📝 Notas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rows}
+                                    </tbody>
+                                </table>
                             </div>
                         `;
                         container.appendChild(div);
