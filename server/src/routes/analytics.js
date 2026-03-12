@@ -16,13 +16,19 @@ app.post('/save-daily-plan', async (c) => {
 
         // Convert to database rows
         const records = tasks.map(t => ({
-            user_email: email,
+            user_email: email,                  // Cambiado a user_email para coincidir con la app
             task_name: t.text,
             priority: t.priority,
             quadrant: t.quadrant,
-            estimated_time: t.time,
+            estimated_time: t.time,             // El string (ej. "30 min")
+            estimated_minutes: t.estimated_minutes || 0, // El entero para analytics
+            actual_minutes: t.actual_minutes || null,
+            relegated_count: t.relegated_count || 0,
+            category: t.category || null,
+            tags: t.tags || [],
             done: t.done || false,
-            date: dateStr
+            date: dateStr,
+            completed_at: t.done ? new Date().toISOString() : null
         }));
 
         // Insert into Supabase table (which the user must create)
