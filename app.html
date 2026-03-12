@@ -9,6 +9,8 @@
         content="Pomodoro ReBorder — Tu hub de productividad inteligente para el reto Release Before Ready 2026. Sincroniza, prioriza y conquista tu día." />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script>
@@ -322,6 +324,17 @@
                         Historial
                     </div>
 
+                    <div id="nav-tutorial" onclick="startTour()"
+                        class="nav-item flex items-center gap-2.5 px-2 py-1.5 rounded-md cursor-pointer hover:bg-notion-hover text-notion-text mt-1">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Tutorial
+                    </div>
+
                     <!-- GitHub Section -->
                     <div id="github-section" class="hidden mt-4">
                         <p class="text-[10px] font-semibold uppercase tracking-widest text-notion-muted px-2 mb-2 mt-4">
@@ -399,8 +412,8 @@
                             <span class="text-sm font-medium text-slate-400">Hoy —</span>
                             <span id="current-date" class="text-sm font-semibold text-slate-100"></span>
                             <span
-                                class="tag-pulse text-[10px] font-bold bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full border border-orange-500/30">RBR
-                                2026 🔴 LIVE</span>
+                                class="tag-pulse text-[10px] font-black bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full border border-orange-500/30">POMODORO
+                                V1 | 12 MARZO 2026</span>
                         </div>
                         <!-- Task progress bar -->
                         <div class="mt-2 flex items-center gap-2">
@@ -879,7 +892,7 @@
         </div>
 
         <!-- ===== FLOATING SUGGESTIONS BUTTON ===== -->
-        <button onclick="openSuggestionModal()"
+        <button onclick="openSuggestionModal()" id="btn-floating-suggestion"
             class="fixed bottom-6 right-6 z-40 bg-purple-600 hover:bg-purple-500 text-white rounded-full p-4 shadow-xl shadow-purple-900/50 hover:scale-105 transition-all duration-300 group flex items-center gap-3 border border-purple-400/30">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -2701,6 +2714,34 @@
                 }
                 if (schedBtn) { schedBtn.textContent = '⚡ Generar Programa'; schedBtn.disabled = false; }
             }
+
+            // ===== INTERACTIVE TUTORIAL (Driver.js) =====
+            function startTour() {
+                const driver = window.driver.js.driver;
+                const tour = driver({
+                    showProgress: true,
+                    nextBtnText: 'Siguiente —›',
+                    prevBtnText: '‹— Anterior',
+                    doneBtnText: '¡Entendido! 🚀',
+                    steps: [
+                        { element: '#sidebar', popover: { title: 'Bienvenido a Pomodoro V1', description: 'Este es tu centro de control. Aquí puedes navegar entre tu Inbox, el Plan del día y tus Conexiones.', side: "right", align: 'start' } },
+                        { element: '#nav-inbox', popover: { title: 'Tu Inbox Universal', description: 'Aquí es donde "vacias" todo el caos de tu mente. Puedes pegar texto libre o importar tareas de otras apps.', side: "bottom", align: 'start' } },
+                        { element: '#taskInput', popover: { title: 'Pega tus tareas', description: 'Escribe tu lista de pendientes aquí. La IA se encargará de entender qué es urgente y qué se puede delegar.', side: "top", align: 'start' } },
+                        { element: '#btn-sync', popover: { title: 'Sincronización Inteligente', description: 'Al presionar este botón, nuestra IA procesará tu lista y la organizará en la Matriz de Eisenhower automáticamente.', side: "bottom", align: 'start' } },
+                        { element: '#nav-conexiones', popover: { title: 'Conecta tus herramientas', description: 'Aquí puedes vincular Notion, GitHub, Google Calendar y más para tener todo en un solo lugar.', side: "right", align: 'start' } },
+                        { element: '#btn-floating-suggestion', popover: { title: 'Buzón de Ideas', description: '¿Quieres una función nueva? Presiona aquí para enviarnos tus sugerencias y calificar la herramienta.', side: "left", align: 'start' } },
+                    ]
+                });
+                tour.drive();
+                localStorage.setItem('tour_seen', 'true');
+            }
+
+            // Auto-start tour for new users
+            window.addEventListener('load', () => {
+                if (!localStorage.getItem('tour_seen')) {
+                    setTimeout(startTour, 1500);
+                }
+            });
         </script>
     </body>
 
