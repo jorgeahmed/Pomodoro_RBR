@@ -98,5 +98,26 @@ app.post('/delegate', async (c) => {
         return c.json({ error: e.message }, 500);
     }
 });
+// POST /api/analytics/suggestion
+app.post('/suggestion', async (c) => {
+    try {
+        const { email, text } = await c.req.json();
+        if (!email || !text) {
+            return c.json({ error: 'Faltan datos requeridos.' }, 400);
+        }
+
+        const { error } = await supabase.from('suggestions').insert([{
+            user_email: email,
+            suggestion: text
+        }]);
+
+        if (error) throw error;
+
+        return c.json({ success: true, message: 'Sugerencia guardada con éxito' });
+    } catch (e) {
+        console.error('Error guardando sugerencia:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
 
 export default app;
