@@ -107,14 +107,15 @@ app.post('/delegate', async (c) => {
 // POST /api/analytics/suggestion
 app.post('/suggestion', async (c) => {
     try {
-        const { email, text } = await c.req.json();
+        const { email, text, rating } = await c.req.json();
         if (!email || !text) {
             return c.json({ error: 'Faltan datos requeridos.' }, 400);
         }
 
         const { error } = await supabase.from('suggestions').insert([{
             user_email: email,
-            suggestion: text
+            suggestion: text,
+            rating: typeof rating === 'number' ? rating : null
         }]);
 
         if (error) throw error;

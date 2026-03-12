@@ -913,6 +913,30 @@
                 </div>
                 <p class="text-sm text-slate-400 mb-5">Ayúdanos a priorizar. ¿Qué herramienta o función nueva te
                     gustaría ver en Pomodoro ReBorder para tu día a día?</p>
+
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">¿Cómo calificarías la herramienta hoy?
+                        ⭐</label>
+                    <div class="flex items-center gap-2" id="rating-stars">
+                        <button onclick="setSuggestionRating(1)"
+                            class="star-btn text-3xl text-slate-600 hover:text-yellow-400 focus:outline-none transition-colors"
+                            data-val="1">★</button>
+                        <button onclick="setSuggestionRating(2)"
+                            class="star-btn text-3xl text-slate-600 hover:text-yellow-400 focus:outline-none transition-colors"
+                            data-val="2">★</button>
+                        <button onclick="setSuggestionRating(3)"
+                            class="star-btn text-3xl text-slate-600 hover:text-yellow-400 focus:outline-none transition-colors"
+                            data-val="3">★</button>
+                        <button onclick="setSuggestionRating(4)"
+                            class="star-btn text-3xl text-slate-600 hover:text-yellow-400 focus:outline-none transition-colors"
+                            data-val="4">★</button>
+                        <button onclick="setSuggestionRating(5)"
+                            class="star-btn text-3xl text-slate-600 hover:text-yellow-400 focus:outline-none transition-colors"
+                            data-val="5">★</button>
+                    </div>
+                    <input type="hidden" id="suggestion-rating" value="0">
+                </div>
+
                 <textarea id="suggestion-text" rows="4"
                     placeholder="Ej: Me gustaría que se pueda integrar con Notion para sacar mis To-Dos directo de allá..."
                     class="w-full bg-[#0a0d14] border border-[#1e2a40] rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors mb-4 placeholder-slate-600 resize-none"></textarea>
@@ -1838,14 +1862,31 @@
                 document.getElementById('suggestion-modal').classList.remove('hidden');
             }
 
+            function setSuggestionRating(val) {
+                document.getElementById('suggestion-rating').value = val;
+                const stars = document.querySelectorAll('.star-btn');
+                stars.forEach((star, index) => {
+                    if (index < val) {
+                        star.classList.remove('text-slate-600');
+                        star.classList.add('text-yellow-400');
+                    } else {
+                        star.classList.add('text-slate-600');
+                        star.classList.remove('text-yellow-400');
+                    }
+                });
+            }
+
             function closeSuggestionModal() {
                 document.getElementById('suggestion-modal').classList.add('hidden');
                 document.getElementById('suggestion-text').value = '';
+                setSuggestionRating(0); // reset stars
             }
 
             async function submitSuggestion() {
                 const text = document.getElementById('suggestion-text').value.trim();
+                const rating = parseInt(document.getElementById('suggestion-rating').value, 10) || null;
                 const btn = document.getElementById('btn-submit-suggestion');
+
                 if (!text) {
                     showToast('⚠️', 'Por favor escribe tu sugerencia primero.');
                     return;
@@ -1859,7 +1900,7 @@
                     const res = await fetch(`${SERVER_URL}/api/analytics/suggestion`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: email, text: text })
+                        body: JSON.stringify({ email: email, text: text, rating: rating })
                     });
 
                     if (res.ok) {
