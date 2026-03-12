@@ -717,6 +717,9 @@
                                             tareas</p>
                                     </div>
                                     <div class="flex gap-2">
+                                        <button id="google-import-btn" onclick="importFromGoogle()"
+                                            class="hidden px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-900/40 text-blue-300 border border-blue-700/50 hover:bg-blue-800/60 transition shadow-sm">↓
+                                            Importar</button>
                                         <button onclick="connectGoogle()" id="google-cfg-btn"
                                             class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition">Conectar</button>
                                     </div>
@@ -2350,6 +2353,58 @@
                 // Redirigir al backend de Railway
                 const authUrl = `${SERVER_URL}/api/oauth/${tool}/start?user_id=${userId}${extraQuery}`;
                 window.location.href = authUrl;
+            }
+
+            // ===================== GOOGLE CALENDAR IMPORT =====================
+            async function importFromGoogle() {
+                const token = sessionStorage.getItem('pm_google_token');
+                if (!token) {
+                    showToast('⚠️', 'Por favor conecta tu cuenta de Google Calendar primero.');
+                    return;
+                }
+
+                const importBtn = document.getElementById('google-import-btn');
+                if (importBtn) importBtn.innerHTML = 'Importando...';
+
+                try {
+                    const res = await fetch(`${SERVER_URL}/api/calendar/import?token=${token}`);
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            showToast('⚠️', 'Sesión de Google expirada. Por favor vuelve a conectar.');
+                            sessionStorage.removeItem('pm_google_token');
+                            sessionStorage.removeItem('pm_google_connected');
+                            const cfgBtn = document.getElementById('google-cfg-btn');
+                            if (cfgBtn) {
+                                cfgBtn.textContent = 'Conectar';
+                                cfgBtn.className = 'px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition';
+                            }
+                            if (importBtn) importBtn.classList.add('hidden');
+                        } else {
+                            showToast('❌', 'Error: ' + data.error);
+                        }
+                        return;
+                    }
+
+                    if (data.count === 0 || !data.events) {
+                        showToast('ℹ️', 'No tienes eventos agendados para hoy en tu calendario.');
+                        return;
+                    }
+
+                    const tx = document.getElementById('taskInput');
+                    const currentValue = tx.value.trim();
+                    const newText = (currentValue ? currentValue + '\\n' : '') + data.events;
+                    tx.value = newText;
+
+                    showToast('✅', `Importados ${data.count} eventos de Google Calendar.`);
+                    setView('inbox');
+                } catch (e) {
+                    console.error('Error auto-importing GCal:', e);
+                    showToast('❌', 'Error de red al importar de Google Calendar');
+                } finally {
+                    if (importBtn) importBtn.innerHTML = '↓ Importar';
+                }
             }
 
             async function connectGoogle() {

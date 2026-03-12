@@ -70,4 +70,46 @@ app.post('/schedule-batch', async (c) => {
     }
 });
 
+// GET /api/calendar/import
+app.get('/import', async (c) => {
+    try {
+        const token = c.req.query('token');
+        if (!token) return c.json({ error: 'Token de Google requerido.' }, 400);
+
+        const timeMin = new Date();
+        timeMin.setHours(0, 0, 0, 0);
+
+        const timeMax = new Date();
+        timeMax.setHours(23, 59, 59, 999);
+
+        const url = new URL('https://www.googleapis.com/calendar/v3/calendars/primary/events');
+        url.searchParams.append('timeMin', timeMin.toISOString());
+        url.searchParams.append('timeMax', timeMax.toISOString());
+        url.searchParams.append('singleEvents', 'true');
+        url.searchParams.append('orderBy', 'startTime');
+
+        const response = await fetch(url.toString(), {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            if (response.status === 401 || errData?.error?.code === 401) {
+                return c.json({ error: 'Credenciales de Google expiradas.' }, 401);
+            }
+            throw new Error(errData?.error?.message || 'Errorfetching events');
+        }
+
+        const data = await response.json();
+        // Filtrar eventos de todo el día o sin summary
+        const validEvents = (data.items || []).filter(i => i.summary && i.status !== 'cancelled');
+        const eventsText = validEvents.map(i => i.summary).join('\n');
+
+        return c.json({ success: true, events: eventsText, count: validEvents.length });
+    } catch (e) {
+        console.error('Error importing events:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 export default app;
