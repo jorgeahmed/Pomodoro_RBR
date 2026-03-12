@@ -12,6 +12,22 @@ const app = new Hono();
 
 // Middleware
 app.use('*', logger());
+
+// Simple In-Memory Rate Limiter (50 requests per 15 minutes per IP)
+const requestCounts = new Map();
+setInterval(() => requestCounts.clear(), 15 * 60 * 1000);
+
+app.use('*', async (c, next) => {
+    const ip = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown';
+    const count = (requestCounts.get(ip) || 0) + 1;
+
+    if (count > 50) {
+        return c.json({ error: 'Too Many Requests', message: 'Límite de peticiones excedido. Intenta de nuevo en 15 minutos.' }, 429);
+    }
+
+    requestCounts.set(ip, count);
+    await next();
+});
 app.use('*', cors({
     origin: [
         'https://jorgeahmed.github.io',
