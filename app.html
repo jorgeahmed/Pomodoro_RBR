@@ -312,6 +312,15 @@
                         </svg>
                         Conexiones
                     </div>
+                    <div id="nav-historial" onclick="setView('historial')"
+                        class="nav-item flex items-center gap-2.5 px-2 py-1.5 rounded-md cursor-pointer hover:bg-notion-hover text-notion-text mt-1">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18" />
+                            <path d="M18 9l-5 5-3-3-4 4" />
+                        </svg>
+                        Historial
+                    </div>
 
                     <!-- GitHub Section -->
                     <div id="github-section" class="hidden mt-4">
@@ -975,6 +984,29 @@
             </div>
         </div>
 
+        <!-- ===== HISTORIAL VIEW ===== -->
+        <div id="view-historial" class="hidden animate-fade-in pb-20">
+            <h1 class="text-3xl font-bold mb-1 tracking-tight">Historial</h1>
+            <p class="text-notion-muted text-sm mb-8">Tus tareas pasadas organizadas por fecha.</p>
+
+            <div id="history-loader" class="hidden text-center py-10">
+                <div class="loader-dot w-2 h-2 bg-blue-500 rounded-full inline-block mx-1"></div>
+                <div class="loader-dot w-2 h-2 bg-blue-500 rounded-full inline-block mx-1"
+                    style="animation-delay: 0.2s"></div>
+                <div class="loader-dot w-2 h-2 bg-blue-500 rounded-full inline-block mx-1"
+                    style="animation-delay: 0.4s"></div>
+                <p class="text-xs text-slate-500 mt-3">Cargando días pasados...</p>
+            </div>
+
+            <div id="history-empty"
+                class="text-center py-16 border border-dashed border-[#1e2a40] rounded-2xl bg-[#131a2a]/50">
+                <p class="text-slate-400 font-medium">No hay registros históricos aún.</p>
+                <p class="text-xs text-slate-500 mt-2">Sincroniza tus tareas hoy para que aparezcan aquí mañana.</p>
+            </div>
+
+            <div id="history-content" class="space-y-8"></div>
+        </div>
+
         <!-- ===== AUTH MODAL ===== -->
         <div id="auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeAuthModal()"></div>
@@ -1306,16 +1338,20 @@
 
             // ===================== NAV =====================
             function setView(view) {
-                ['inbox', 'plan', 'conexiones'].forEach(v => {
+                ['inbox', 'plan', 'conexiones', 'historial'].forEach(v => {
                     document.getElementById('view-' + v).classList.toggle('hidden', v !== view);
                 });
-                ['inbox', 'plan', 'conexiones'].forEach(v => {
+                ['inbox', 'plan', 'conexiones', 'historial'].forEach(v => {
                     const el = document.getElementById('nav-' + v);
                     if (el) {
                         el.classList.toggle('bg-notion-hover', v === view);
                         el.classList.toggle('font-medium', v === view);
                     }
                 });
+
+                if (view === 'historial') {
+                    fetchHistory();
+                }
             }
 
             // ===================== GEMINI CONFIG =====================
@@ -1379,6 +1415,8 @@
                     btn.disabled = false;
                     btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 10h9L7 22l2-10H1L13 2z"/></svg> Re-sincronizar';
                     showToast('⚡', `${tasks.length} tareas priorizadas por Gemini (Servidor)`);
+
+                    saveDailyHistory(tasks);
                 } catch (err) {
                     console.error('AI Processing Error:', err);
                     document.getElementById('ai-loader').classList.add('hidden');
@@ -1405,6 +1443,8 @@
                     document.getElementById('result-section').classList.remove('hidden');
                     document.getElementById('btn-export-ics').classList.remove('hidden');
                     document.getElementById('btn-export-email').classList.remove('hidden');
+
+                    saveDailyHistory(tasks);
                 }
             }
 
@@ -1813,6 +1853,125 @@
                 }
                 initSupabase();
             });
+
+            // ===================== HISTORIAL (DATABASE SUPABASE) =====================
+            async function getUserId() {
+                if (_supabase) {
+                    const { data: { session } } = await _supabase.auth.getSession();
+                    if (session?.user) return session.user.id;
+                }
+                const googleToken = sessionStorage.getItem('pm_google_token');
+                if (googleToken) {
+                    const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: `Bearer ${googleToken}` } });
+                    if (res.ok) { const user = await res.json(); return user.email; }
+                }
+                return 'anonymous_user';
+            }
+
+            async function saveDailyHistory(currentTasks) {
+                const email = await getUserId();
+                if (email === 'anonymous_user') return; // Cannot save history without auth
+
+                try {
+                    await fetch(`${SERVER_URL}/api/analytics/save-daily-plan`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, tasks: currentTasks })
+                    });
+                } catch (e) {
+                    console.error('Failed to auto-save history:', e);
+                }
+            }
+
+            async function fetchHistory() {
+                const email = await getUserId();
+                const container = document.getElementById('history-content');
+                const empty = document.getElementById('history-empty');
+                const loader = document.getElementById('history-loader');
+
+                if (email === 'anonymous_user') {
+                    loader.classList.add('hidden');
+                    container.classList.add('hidden');
+                    empty.classList.remove('hidden');
+                    empty.innerHTML = `<p class="text-slate-400 font-medium tracking-tight">Debes iniciar sesión con Google para ver tu historial.</p>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                empty.classList.add('hidden');
+                loader.classList.remove('hidden');
+
+                try {
+                    const res = await fetch(`${SERVER_URL}/api/analytics/history?email=${encodeURIComponent(email)}`);
+                    const data = await res.json();
+                    loader.classList.add('hidden');
+
+                    if (!data.success || !data.history || data.history.length === 0) {
+                        empty.classList.remove('hidden');
+                        return;
+                    }
+
+                    container.classList.remove('hidden');
+
+                    data.history.forEach(day => {
+                        const div = document.createElement('div');
+                        div.className = 'border border-[#1e2a40] rounded-xl bg-[#131a2a] overflow-hidden shadow-sm';
+
+                        // Header
+                        const dateObj = new Date(day.date + 'T00:00:00');
+                        const dateTitle = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(dateObj);
+                        const progress = Math.round((day.tasks.filter(t => t.done).length / day.tasks.length) * 100) || 0;
+
+                        let rows = '';
+                        day.tasks.forEach(t => {
+                            const badgeColor = t.color === 'red' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                t.color === 'blue' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                    t.color === 'yellow' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
+                                        'bg-slate-500/10 text-slate-400 border-slate-500/20';
+
+                            rows += `
+                                <div class="flex items-center justify-between py-2 border-t border-[#1e2a40]/50 hover:bg-white/5 px-4 transition-colors">
+                                    <div class="flex items-center gap-3 w-2/3">
+                                        <div class="flex-shrink-0 w-4 h-4 rounded-full border ${t.done ? 'bg-blue-500 border-blue-500 flex items-center justify-center' : 'border-slate-600'}">
+                                            ${t.done ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+                                        </div>
+                                        <p class="text-sm font-medium ${t.done ? 'text-slate-500 line-through' : 'text-slate-200'} truncate">${t.task_name}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${t.priority}</span>
+                                        <span class="text-[10px] text-slate-500 font-mono w-10 text-right">${t.estimated_time}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        div.innerHTML = `
+                            <div class="bg-[#161d2e] px-4 py-3 flex items-center justify-between border-b border-[#1e2a40]">
+                                <h3 class="font-bold text-white capitalize flex items-center gap-2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-blue-400" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    ${dateTitle}
+                                </h3>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-400">${progress}% completado</span>
+                                    <div class="w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-500 rounded-full" style="width: ${progress}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="py-1">
+                                ${rows}
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+
+                } catch (e) {
+                    console.error('Failed to load history:', e);
+                    loader.classList.add('hidden');
+                    empty.classList.remove('hidden');
+                    empty.innerHTML = `<p class="text-red-400 font-medium">Error al cargar el historial.</p>`;
+                }
+            }
 
             // ===================== SUPABASE =====================
             let _supabase = null;
